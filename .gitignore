@@ -1,0 +1,35 @@
+# IDE and editor settings
+.idea/
+.vscode/
+*.iml
+
+# Local knowledge-base / editor
+/.obsidian/
+/.codegraph/
+/.superpowers/
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+*.swo
+*~
+
+# Build artifacts
+target/
+build/
+dist/
+out/
+
+# Independently managed child repository
+yixiang-mes-system/
+
+# OS metadata
+.DS_Store
+Thumbs.db
+Desktop.ini
