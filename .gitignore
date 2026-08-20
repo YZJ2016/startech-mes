@@ -30,6 +30,11 @@ out/
 # Parent tracks docs/scripts only; commit MES code inside this directory.
 /startech-mes-basic/
 
+# RuoYi reference checkouts (read-only; never commit upstream source into the parent).
+/RuoYi-Vue/
+/RuoYi-Vue-springboot2/
+/RuoYi-Vue3-front/
+
 # Linked git worktrees of nested repos (do not track checkouts).
 /.worktrees/
 
