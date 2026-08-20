@@ -26,8 +26,9 @@ build/
 dist/
 out/
 
-# Independently managed child repository
-yixiang-mes-system/
+# Independently managed nested git repository (not a submodule).
+# Parent tracks docs/scripts only; commit MES code inside this directory.
+/startech-mes-basic/
 
 # OS metadata
 .DS_Store
