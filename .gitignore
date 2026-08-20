@@ -30,6 +30,12 @@ out/
 # Parent tracks docs/scripts only; commit MES code inside this directory.
 /startech-mes-basic/
 
+# Linked git worktrees of nested repos (do not track checkouts).
+/.worktrees/
+
+# Linked git worktrees of nested repos (never track copies in the parent).
+.worktrees/
+
 # OS metadata
 .DS_Store
 Thumbs.db
