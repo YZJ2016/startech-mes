@@ -33,6 +33,7 @@ out/
 # RuoYi reference checkouts (read-only; never commit upstream source into the parent).
 /RuoYi-Vue/
 /RuoYi-Vue-springboot2/
+/RuoYi-Vue-springboot3/
 /RuoYi-Vue3-front/
 
 # Linked git worktrees of nested repos (do not track checkouts).
