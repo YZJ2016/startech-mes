@@ -34,6 +34,7 @@ out/
 /RuoYi-Vue/
 /RuoYi-Vue-springboot2/
 /RuoYi-Vue-springboot3/
+# Former Vue3 checkout path. Live Vue3 app is nested-repo `startech-mes-basic/startech-mes-front/`.
 /RuoYi-Vue3-front/
 
 # Linked git worktrees of nested repos (do not track checkouts).

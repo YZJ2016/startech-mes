@@ -10,6 +10,7 @@
 4. 修改实体、枚举、接口、数据库字段或认证逻辑前，必须检查 Web 端调用方以及 Mapper/XML/SQL 等关联层。
 5. 默认冻结技术栈和大版本依赖；Java、Spring Boot、Vue、Vue CLI、构建链升级必须作为独立任务，说明影响范围并完成对应构建验证。
 6. 不声称“测试已通过”或“构建成功”，除非实际运行命令并获得成功输出。
+7. 外层 `docs/` 按编号目录分层；开发单元（spec 拆分）必须复制 `docs/01.temlplates/01.development_unit_template.md` 写入 `docs/04.specs/`，不得写入 `docs/superpowers/` 或其他自建目录。
 
 下面各节是这些红线的具体展开。
 
@@ -17,10 +18,11 @@
 
 外层仓库 `startech-mes` 管理文档、脚本和本文件。业务代码位于 `startech-mes-basic/`：这是一个**独立 Git 仓库**（自带 `.git`，不是 submodule），由外层 `.gitignore` 的 `/startech-mes-basic/` 排除，父仓库不得跟踪或提交其中内容。
 
-`startech-mes-basic/` 当前包含同一 MES 系统的两个端：
+`startech-mes-basic/` 当前包含同一 MES 系统的后端与两个管理端工程：
 
 - `backend/`：Java 后端，Maven 聚合项目，服务入口模块为 `ktg-admin`，默认 HTTP 端口为 `8085`。
-- `frontend/`：管理 Web 端，Vue 2 + Element UI + Vue CLI 4；开发服务默认端口为 `80`（可用环境变量 `port` 或 `npm_config_port` 覆盖）。
+- `frontend/`：现行管理 Web 端，Vue 2 + Element UI + Vue CLI 4；开发服务默认端口为 `80`（可用环境变量 `port` 或 `npm_config_port` 覆盖）。**对该目录的 Vue 2 技术栈冻结仍然有效**，不得在此引入 Vue 3、Vite、Element Plus 或并行 UI 框架。
+- `startech-mes-front/`：Vue 3 管理端升级目标（RuoYi Vue3 3.9.2 壳 + Element Plus + Vite）。与 `frontend/` 并行存在，是独立升级轨道，在完成切换之前不替代现行 Vue 2 应用。
 
 本仓库当前**没有**车间平板端（无 `pad/`）。不要为管理端接口假设平板调用方，也不要擅自新增跨端工程。
 
@@ -34,6 +36,30 @@
 
 不要将新业务逻辑放入 `ktg-admin` Controller；Controller 保持薄层，业务逻辑置于对应领域模块的 service 层。除非任务明确涉及，否则不要改动 `ktg-generator`、历史文档、`uploadPath`/`tmp`、构建产物或 `mes-docker`。
 
+## 外层文档目录约束
+
+外层仓库 `docs/` 按编号分层。本文件中的文档路径优先于技能默认落点（例如 Superpowers 的 `docs/superpowers/specs/`）。不要在 `docs/` 下新建并列顶层目录，也不要为纠正既有拼写而改名或另建 `01.templates/`（现行目录名是 `01.temlplates`）。
+
+| 目录 | 用途 | 写入规则 |
+| ---- | ---- | -------- |
+| `docs/01.temlplates/` | 文档模板 | 只改模板本身；实现文档从模板复制出去，不在模板文件里填内容 |
+| `docs/02.requirements/` | 需求与缺口清单 | 需求、范围、收口清单；spec 中的开放缺口须能追溯到这里 |
+| `docs/03.design/` | 调研与设计 | 评估、调查、方案；尚未拆成可执行开发单元时放这里 |
+| `docs/04.specs/` | 开发单元 | **唯一**允许存放实现单元文档（spec / plan / task）的位置 |
+| `docs/05.manuals/` | 操作手册 | 运维、操作、验证手册；不要把实现计划写进手册 |
+
+编号文件统一为 `NN.kebab-case-topic.md`（两位序号 + 短横线 slug）。新文件序号接该目录现有最大号，不要插入空号或改写历史序号。总控/程序类可用 `00.` 或阶段起始号。
+
+### Specs 拆分
+
+拆分或新建开发单元时：
+
+1. 复制 `docs/01.temlplates/01.development_unit_template.md` 的章节结构（`1. Spec`、`2. Plan`、`3. Task Breakdown`、`4. Verification Record`、`5. Final Summary`），填满必填项；不要自拟另一套章节，不要只写 Goal / In scope 短文。
+2. 新文件只放 `docs/04.specs/`。禁止写入 `docs/superpowers/specs/` 或其他技能默认路径；该目录若已有文件，视为历史，不作为新文档落点。
+3. 大任务先拆成多个开发单元，每个单元一份 spec；用 Related requirement/design documents 与 Next development unit 互相链接。
+4. 缺口状态沿用模板约定（`[ ]` 开放 / `[x]` 已收口），并指向 `docs/02.requirements/` 中的收口清单；清单文件不存在时先建清单，不要让缺口只散落在各 spec 且无索引。
+5. 文档不得包含真实服务地址、凭据或内部敏感路径。
+
 ## 路径、命令与代码发现
 
 - 外层仓库根目录是本文件的管理位置；`startech-mes-basic/` 是业务项目根目录。下文的 `backend/`、`frontend/` 路径均相对于 `startech-mes-basic/`，执行这些命令前先进入该目录。文档和命令不假设任何本机绝对路径。
@@ -44,9 +70,9 @@
 
 ## 修改边界与多端影响
 
-- 后端接口、实体或状态流转变更时，先定位所属 MES 领域包，再检查 `frontend/src/api/`、`frontend/src/views/` 和相关 store/router 的调用点。
-- `frontend/src/utils/request.js` 统一处理 axios、Authorization 请求头、重复提交与响应错误。不要在单个页面复制认证、错误处理或下载逻辑。
-- Web 接口代理和环境变量集中在 `frontend/vue.config.js` 与 `.env.*`。不得把真实服务地址或凭据硬编码到新代码、文档或示例中；也不要在回答中复述已有代理目标。
+- 后端接口、实体或状态流转变更时，先定位所属 MES 领域包，再检查现行 `frontend/src/api/`、`frontend/src/views/`；若任务属于 Vue 3 升级轨道，同时检查 `startech-mes-front/src/api/` 与 `startech-mes-front/src/views/`。
+- `frontend/src/utils/request.js`（Vue 2）与 `startech-mes-front/src/utils/request.js`（Vue 3）各自统一处理 axios、Authorization 请求头、重复提交与响应错误。不要在单个页面复制认证、错误处理或下载逻辑。
+- Web 接口代理和环境变量：Vue 2 集中在 `frontend/vue.config.js` 与 `.env.*`；Vue 3 集中在 `startech-mes-front/vite.config.js` 与 `.env.*`。不得把真实服务地址或凭据硬编码到新代码、文档或示例中；也不要在回答中复述已有代理目标。
 - 改数据库字段时，同步检查 Java domain/DTO、service、mapper XML、SQL、前端表单与列表和导出逻辑。
 
 ## 后端工作规则
@@ -74,8 +100,10 @@ mvn spring-boot:run
 
 ## Web 前端工作规则
 
+### 现行 Vue 2 应用（`frontend/`）— 冻结仍有效
+
 - 保持 Vue 2 Options API、Element UI、Vue Router、Vuex 与现有 `src/api`、`src/views`、`src/store`、`src/router` 的组织方式。
-- 不要引入 Vue 3、Vite、TypeScript、Pinia、Tailwind 或新的 UI 框架，除非该升级被明确要求并作为独立任务验证。
+- 不要在 `frontend/` 引入 Vue 3、Vite、TypeScript、Pinia、Tailwind 或新的 UI 框架。Vue 3 升级在独立目录 `startech-mes-front/` 进行，不解除对本目录的冻结。
 - `frontend/package.json` 声明 `node >= 8.9`，未固定 Volta 版本。进入 `frontend/` 后再执行 Node/npm 命令，避免用全局 Node 版本改写依赖树。
 - `frontend/` 当前没有已提交的 lockfile，且其 `.gitignore` 排除了 `package-lock.json` 与 `yarn.lock`。安装或更新依赖前先确认团队采用的包管理器；不得擅自新增、提交或因环境问题重写 lockfile。
 - 新接口先在 `src/api/` 建立符合现有领域结构的封装，再由页面调用；不要直接在 Vue 页面散落 axios 配置。
@@ -93,18 +121,35 @@ npm run build:prod
 
 若依赖未安装、Node 版本不符或构建失败，先报告实际输出；不要为绕过旧依赖问题而顺手升级 lockfile、Vue 或构建链。
 
+### Vue 3 升级轨道（`startech-mes-front/`）
+
+- 仅在明确的 Vue 3 迁移任务中改该目录。技术栈为 Vue 3 + Element Plus + Vite（当前壳为 RuoYi Vue3 3.9.2）；不要把 Vue 3 改动写回 `frontend/`。
+- 对接后端仍为 3.8.2 契约：`/login`、`/getInfo`、`/getRouters`、Bearer JWT、`code/msg/data/rows/total`。不要启用后端未提供的 Vue3 3.9 锁屏（`/unlockscreen`）或依赖 `getInfo` 密码过期字段的 UI。
+- 代理与环境变量只放在 `startech-mes-front/vite.config.js` 与 `.env.*`；新增项使用占位符或环境变量，不硬编码生产地址或凭据。
+- 进入 `startech-mes-front/` 后再执行 Node/npm 命令。该目录 `.gitignore` 排除 lockfile；不得擅自新增或提交 lockfile。
+
+常用验证命令（先进入 `startech-mes-basic/` 后执行）：
+
+```bash
+cd startech-mes-front
+node -v
+npm install
+npm run build:prod
+```
+
 ## 安全底线
 
 - 不要提交或生成真实 `.env`、私钥、证书、数据库备份、用户导出、生产配置副本或包含真实凭据的 Docker 覆盖文件。
 - 已存在的明文凭据属于技术债，不应在任何输出中复述；若任务涉及相关配置，应先建议以环境变量或部署侧 Secret 管理替代，并保持现有运行兼容性。
 - 数据库脚本分布在 `backend/sql/` 与 `backend/doc/`。历史初始化、示例和设计脚本视为不可原地改写的记录；需要调整 schema 或数据时，新增独立、可审查、可回滚的增量脚本，并在执行前明确目标环境与备份/回退方案。
-- Web 端的服务地址、代理和协议变更必须集中在 `frontend/vue.config.js` 与 `.env.*` 完成。生产或试运行环境应优先使用 HTTPS 域名；不得新增裸 IP HTTP 依赖，也不得在页面代码、日志或文档中散落服务地址和凭据。
+- Web 端的服务地址、代理和协议变更必须集中在对应工程完成：Vue 2 用 `frontend/vue.config.js` 与 `.env.*`；Vue 3 用 `startech-mes-front/vite.config.js` 与 `.env.*`。生产或试运行环境应优先使用 HTTPS 域名；不得新增裸 IP HTTP 依赖，也不得在页面代码、日志或文档中散落服务地址和凭据。
 - 日志、异常信息、API 返回和前端 toast 不得暴露口令、Token、对象存储凭据、数据库连接详情或内部文件路径。
 - 涉及权限、登录、Token、上传下载、对象存储、Swagger、跨域、UReport 或容器端口时，必须进行安全影响说明。
 
 ## 验证、交付与文件操作
 
 - 只改文档时，检查目标文件存在、标题层级和 Markdown 结构正确、没有未完成标记或占位内容，也不包含敏感值。
+- 新建或拆分开发单元时，核对：文件位于 `docs/04.specs/`、章节与 `docs/01.temlplates/01.development_unit_template.md` 一致、序号未与现有文件冲突。
 - 改后端时优先运行 Maven 测试与编译；改 Web 时优先运行 lint 和生产构建。
 - 每次交付清楚列出：修改文件、影响端（后端/Web）、实际执行的验证命令及结果、未验证项与原因。
 - 遵循最小化补丁原则。不要使用 `git reset --hard`、`git checkout --`、批量删除、批量格式化或重写 vendor/静态/构建文件，除非用户明确授权。
