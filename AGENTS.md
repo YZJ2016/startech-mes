@@ -20,7 +20,7 @@
 
 `startech-mes-basic/` 当前包含同一 MES 系统的后端与两个管理端工程：
 
-- `backend/`：Java 后端，Maven 聚合项目；**JDK 17 + Spring Boot 4.1.0 + Jakarta EE + SpringDoc**。服务入口模块为 `ktg-admin`，默认 HTTP 端口为 `8085`。Maven 产品坐标仍为 `com.ktg` / `ktg` / `3.8.2`（这是 GAV，不是栈版本）；不要凭该数字退回 Java 8 / Boot 2.5，也不要擅自改成 `com.ruoyi`。
+- `backend/`：Java 后端，Maven 聚合项目；**JDK 17 + Spring Boot 4.1.0 + Jakarta EE + SpringDoc**。服务入口模块为 `ktg-admin`，默认 HTTP 端口为 `8085`。Maven 产品坐标仍为 `com.ktg` / `ktg` / `3.9.2`（这是 GAV，不是栈版本）；不要凭该数字退回 Java 8 / Boot 2.5，也不要擅自改成 `com.ruoyi`。
 - `startech-mes-front/`：**现行**管理 Web 端。Vue 3 + Element Plus + Vite + Pinia（RuoYi Vue3 3.9.2 壳），已与换壳后后端对齐。开发服务默认端口为 `80`。新管理端功能默认改这里。
 - `frontend/`：遗留管理 Web 端，Vue 2 + Element UI + Vue CLI 4；开发服务默认端口为 `80`（可用环境变量 `port` 或 `npm_config_port` 覆盖）。**对该目录的 Vue 2 技术栈冻结仍然有效**，不得在此引入 Vue 3、Vite、Element Plus 或并行 UI 框架。除非任务明确针对该目录，否则不要把新功能写进这里，也不要把 Vue 3 改动写回这里。
 
