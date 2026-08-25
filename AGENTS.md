@@ -43,12 +43,11 @@ MES 五项接线：配置前缀 `ruoyi:`；`MesPermitAllProvider` 在 `ktg-commo
 
 ## 后端 / Web
 
-- 排除数据源自动配置用 Boot 4 包名 `org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration`。不要把 Boot Jackson 3 `ObjectMapper` 注入 LangChain4j 或 Jackson 2 路径。文档用 SpringDoc，不是 springfox。
-- `GET /login/resolveTenant` 匿名、至多一个编码、永不返回租户列表；`GET /getInfo` 含 `pwdChrtype`（前端 session 键 `pwrChrtype`）、`isDefaultModifyPwd`、`isPasswordExpired`，**不**回隔离级别/许可/JDBC；`POST /unlockscreen` ≠ 管理员解锁用户。登录失败文案统一。
-- 增量 SQL：`backend/sql/YYYYMMDD_NN_topic.sql`；历史 `ry_*` / `mes-*` / `quartz.sql` 不原地改。未单独立项前不要加 `flyway-core`。模型 Key / JDBC 口令不进 yml。不得扩大匿名面。
-- 平台账号是 `user_name=platform`（`tenant_id=0`），不是 `user_id=1`；现网 `admin` 只操作租户 1。`DATABASE` 专库不可用禁止回落主库；v1 禁止创建后改隔离级别或 JDBC 目标。平台页只在 Vue3 `/platform/**`。新租户表：`tenant_id` + 拦截器 include + 唯一键 `(tenant_id, 业务键)`。Redis 租户键用 `TenantCacheKeys`；异步用 `TaskDecorator` 拷贝 `TenantContext`。
-- 模型 Key 只在 `ai_provider`/`ai_model`，禁止全局 `ChatModel` Bean。`ktg-ai` 只加 LangChain4j 坐标、不写 version（父 POM 已 import `1.19.0` / `1.19.0-beta29`）；禁止 `langchain4j-spring-bom`。不要擅自加写 Tools、SQL MCP 或匿名端点。
-- Vue3：axios 走 `src/utils/request.js`（不加客户端租户头）；代理与 env 只在 `vite.config.js` / `.env.*`；新接口先写 `src/api/`；不要提交 lockfile 或升级 Vue/Vite/Element Plus。登录先 resolveTenant（Host 命中则写死该厂）。铃铛走 mes 的 `notice/detail`；SSO `GET /loginOuth`。AI 页在 `src/views/ai/`，不要引入 element-plus-x / Vben / TypeScript。
+领域身份、隔离策略、模型目录与 Key、登录字段等细则写在对应需求/设计里，不在本文件展开。
+
+- 排除数据源自动配置用 Boot 4 包名 `org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration`。不要把 Boot Jackson 3 `ObjectMapper` 注入 LangChain4j 或既有 Jackson 2 路径。文档用 SpringDoc，不是 springfox。
+- Controller 只编排；规则在对应领域模块的 service。增量 SQL：`backend/sql/YYYYMMDD_NN_topic.sql`；历史脚本不原地改。未单独立项前不要加 `flyway-core`，也不要把密钥写入 yml。不得扩大匿名面。
+- Vue3：axios 走 `src/utils/request.js`；代理与 env 只在 `vite.config.js` / `.env.*`；新接口先写 `src/api/`。不要提交 lockfile，不要为局部需求升级 Vue / Vite / Element Plus。
 
 验证（先进入 `startech-mes-basic/`，Java 17）：
 
