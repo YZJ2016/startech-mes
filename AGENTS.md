@@ -13,7 +13,6 @@
 7. 外层 `docs/` 按编号分层；开发单元从 `docs/01.temlplates/01.development_unit_template.md` 复制到 `docs/04.specs/`。不要新建并列顶层目录，不要纠正 `01.temlplates` 拼写。
 8. 租户失败关闭：无 `TenantContext` 不得访问租户表；SQL 永不跳过 `tenant_id`（含现网 `admin` / `user_id=1`）；`isAdmin()` 不得关拦截器。登录后只信 JWT/`LoginUser`，禁止客户端租户头。
 9. `/ai/**` 不进 `MesPermitAllProvider`；不合并 `ruoyi-ai`；AI 禁止直连 MES 业务库或任意 SQL。
-10. Git 提交与 push 时，commit message 禁止包含 `Co-authored-by: Cursor <cursoragent@cursor.com>` 或任何 Cursor 自动生成的 Co-authored-by 行。
 
 ## 仓库
 
