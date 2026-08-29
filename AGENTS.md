@@ -46,7 +46,7 @@ MES 五项接线：配置前缀 `ruoyi:`；`MesPermitAllProvider` 在 `ktg-commo
 领域身份、隔离策略、模型目录与 Key、登录字段等细则写在对应需求/设计里，不在本文件展开。
 
 - 排除数据源自动配置用 Boot 4 包名 `org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration`。不要把 Boot Jackson 3 `ObjectMapper` 注入 LangChain4j 或既有 Jackson 2 路径。文档用 SpringDoc，不是 springfox。
-- Controller 只编排；规则在对应领域模块的 service。增量 SQL：`backend/sql/YYYYMMDD_NN_topic.sql`；历史脚本不原地改。未单独立项前不要加 `flyway-core`，也不要把密钥写入 yml。不得扩大匿名面。Flyway 切线号与落地后目录见 `docs/03.design/05.mes-flyway-integration.md`；未拆 spec 前仍走 `sql/` 增量。
+- Controller 只编排；规则在对应领域模块的 service。切线（75）之后新 DDL 只进 `ktg-system/src/main/resources/db/migration/{master,tenant}/`；`backend/sql/` 只作历史，不原地改、不追加发布脚本。`spring-boot-starter-flyway` 已在 `ktg-system`。不要把密钥写入 yml。不得扩大匿名面。基线号与目录见 `docs/03.design/05.mes-flyway-integration.md`、`docs/04.specs/74.mes-flyway-program.md`。
 - Vue3：axios 走 `src/utils/request.js`；代理与 env 只在 `vite.config.js` / `.env.*`；新接口先写 `src/api/`。不要提交 lockfile，不要为局部需求升级 Vue / Vite / Element Plus。
 
 验证（先进入 `startech-mes-basic/`，Java 17）：
