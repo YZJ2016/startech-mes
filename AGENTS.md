@@ -21,7 +21,7 @@
 | --------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | `backend/`            | Maven 聚合；入口 `ktg-admin`（`com.ktg.RuoYiApplication`，8085）。GAV `com.ktg`/`ktg`/`3.9.2` 不是栈版本。包名保持 `ktg-*` / `com.ktg`。 |
 | `startech-mes-front/` | **唯一上线**管理端（Vue 3）。新功能默认改这里。                                                                                         |
-| `frontend/`           | 遗留 Vue 2，冻结。多租户/AI/`/platform/**` 不改这里。无 `tenantCode` 的 Vue2 登录失败已接受。                                                |
+| `frontend/`           | 遗留 Vue 2，**工程不再维护**（冻结，不是延期项）。多租户/AI/`/platform/**` 不改这里。不为 Vue2 补 `tenantCode`；无码登录失败已接受。                                                |
 | 无 `pad/`              | 不要假设平板调用方；平板入仓后不得注册 `/platform/**`。                                                                                  |
 
 `ktg-admin` 薄 Controller；业务在 `ktg-system` / `ktg-mes` / `ktg-ai`。除非任务点名，不改 `ktg-generator`、UReport、构建产物、`mes-docker`。外层 `RuoYi-Vue*` 只读。改 MES 时 Git 根必须是 `startech-mes-basic/`。
