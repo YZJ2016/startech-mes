@@ -26,9 +26,11 @@ build/
 dist/
 out/
 
-# Independently managed nested git repository (not a submodule).
-# Parent tracks docs/scripts only; commit MES code inside this directory.
+# Independently managed nested git repositories (not submodules).
+# Parent tracks docs/scripts only; never commit nested-repo files into the parent.
 /startech-mes-basic/
+# Open-source MES reference (read-only). Implement only in startech-mes-basic.
+/kuaigeyun-mes/
 
 # RuoYi reference checkouts (read-only; never commit upstream source into the parent).
 /RuoYi-Vue/

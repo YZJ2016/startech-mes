@@ -1,6 +1,6 @@
 # AGENTS.md
 
-改代码或配置前先读本文件。外层仓库管文档与本文件；业务代码在独立 Git 仓库 `startech-mes-basic/`（父仓 `.gitignore` 排除，禁止把子仓文件提交进父仓）。下文 `backend/`、`startech-mes-front/`、`frontend/` 均相对该子仓。细则以对应设计/缺口为准，不要在本文件展开决策表。
+改代码或配置前先读本文件。外层仓库管文档与本文件；业务代码在独立 Git 仓库 `startech-mes-basic/`（父仓 `.gitignore` 排除，禁止把子仓文件提交进父仓）。开源对照仓 `kuaigeyun-mes/` 同样独立 Git、同样排除，只读参考，不是实现目标。下文 `backend/`、`startech-mes-front/`、`frontend/` 均相对 `startech-mes-basic/`。细则以对应设计/缺口为准，不要在本文件展开决策表。
 
 ## 红线
 
@@ -14,6 +14,7 @@
 8. 租户失败关闭：无 `TenantContext` 不得访问租户表；SQL 永不跳过 `tenant_id`（含现网 `admin` / `user_id=1`）；`isAdmin()` 不得关拦截器。登录后只信 JWT/`LoginUser`，禁止客户端租户头。
 9. `/ai/**` 不进 `MesPermitAllProvider`；不合并 `ruoyi-ai`；AI 禁止直连 MES 业务库或任意 SQL。
 10. 运营可改的配置走系统管理「参数设置」（`sys_config`），不写 yml。yml / 环境变量只留给启动必需、基础设施（端口、数据源、Redis）与密钥。密钥仍禁止进 yml，也禁止明文进参数表。
+11. `kuaigeyun-mes/` 只读对照：不合并其代码、栈、包名或接口进主仓；未点名该目录时不改写；实现与提交只落 `startech-mes-basic/`。不得把它当第二套 MES 维护。
 
 ## 仓库
 
@@ -24,9 +25,9 @@
 | `frontend/`           | 遗留 Vue 2，**工程不再维护**（冻结，不是延期项）。多租户/AI/`/platform/**` 不改这里。不为 Vue2 补 `tenantCode`；无码登录失败已接受。                                                |
 | 无 `pad/`              | 不要假设平板调用方；平板入仓后不得注册 `/platform/**`。                                                                                  |
 
-`ktg-admin` 薄 Controller；业务在 `ktg-system` / `ktg-mes` / `ktg-ai`。除非任务点名，不改 `ktg-generator`、UReport、构建产物、`mes-docker`。外层 `RuoYi-Vue*` 只读。改 MES 时 Git 根必须是 `startech-mes-basic/`。
+`ktg-admin` 薄 Controller；业务在 `ktg-system` / `ktg-mes` / `ktg-ai`。除非任务点名，不改 `ktg-generator`、UReport、构建产物、`mes-docker`。外层 `RuoYi-Vue*`、`kuaigeyun-mes/` 只读。改 MES 时 Git 根必须是 `startech-mes-basic/`。可对照快格云的思路，禁止把其源码拷进主仓或当第二套 MES 维护。`kuaigeyun-mes/` 自身的提交只在该子仓内进行，且须任务点名。
 
-外层仓库（本文所在 Git）**只保留 `main`**。文档与本文件只在 `main` 上改，不要在外层开长期功能分支。`feature/mes-flyway-i10` 合入 `main` 后删除本地与 `origin` 上的该分支。业务仓 `startech-mes-basic/` 不受此约束。
+外层仓库（本文所在 Git）**只保留 `main`**。文档与本文件只在 `main` 上改，不要在外层开长期功能分支。`feature/mes-flyway-i10` 合入 `main` 后删除本地与 `origin` 上的该分支。业务仓 `startech-mes-basic/` 不受此约束。对照仓 `kuaigeyun-mes/` 也不受此外层分支约束。
 
 MES 五项接线：配置前缀 `ruoyi:`；`MesPermitAllProvider` 在 `ktg-common`/`ktg-mes` 注入放行（路径不写进 framework）；公告 `GET /system/notice/list` 只在 mes，不要补 `listTop`/`markRead`；默认上传 `POST /common/uploadMinio`（键 `tenant/{id}/`，空上下文拒绝）；手机号登录走既有 `UserDetailsServiceImpl`。租户解析域名优先，否则必填 `tenantCode`，禁止默认租户 1。
 
