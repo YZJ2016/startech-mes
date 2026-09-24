@@ -31,6 +31,8 @@
 
 MES 五项接线：配置前缀 `ruoyi:`；`MesPermitAllProvider` 在 `ktg-common`/`ktg-mes` 注入放行（路径不写进 framework）；公告 `GET /system/notice/list` 只在 mes，不要补 `listTop`/`markRead`；默认上传 `POST /common/uploadMinio`（键 `tenant/{id}/`，空上下文拒绝）；手机号登录走既有 `UserDetailsServiceImpl`。租户解析域名优先，否则必填 `tenantCode`，禁止默认租户 1。
 
+改 `kuaigeyun-mes/riveredge-backend` 的 aerich 迁移时：文件仍放 `migrations/models/`；排序键是文件名第一个 `_` 之前的整数，不是中间时间戳。**禁止**接开源仓现有最大序号（如 793、794）续编——用户私有仓可能占用同一段连续序号。新迁移第一段须为 14 位时间戳，且大于本目录已有迁移文件名里出现过的最大时间戳（例：`20260924130000_kuaiai_chat_tables.py`）。不要另起 `001_` 重编；本仓只有一个 Tortoise app `models`，不能靠新目录得到第二套序号。已在库 `aerich` 表记录过的文件名不要改；未执行过的才可以改名。
+
 ## 文档
 
 外层 `docs/` 只按现有编号目录写，不新建并列顶层目录，不纠正 `01.temlplates` 拼写。各层不得串写：
