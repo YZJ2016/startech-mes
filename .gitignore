@@ -28,9 +28,12 @@ out/
 
 # Independently managed nested git repositories (not submodules).
 # Parent tracks docs/scripts only; never commit nested-repo files into the parent.
+# Former main repo. Not the default implementation target.
 /startech-mes-basic/
-# Open-source MES reference (read-only). Implement only in startech-mes-basic.
+# Main implementation repo for subsequent development.
 /kuaigeyun-mes/
+# Baseline snapshot clone of kuaigeyun-mes (reference only).
+/kuaigeyun-mes-baseline/
 
 # RuoYi reference checkouts (read-only; never commit upstream source into the parent).
 /RuoYi-Vue/
