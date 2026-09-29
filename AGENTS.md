@@ -4,13 +4,12 @@
 
 ## 红线
 
-1. 不复述、不新增、不提交密码、Token、密钥、JDBC 凭据或生产地址；新配置只用环境变量或占位符。敏感变量只写名：`TENANT_JDBC_CIPHER_KEY`、`AI_MODEL_CIPHER_KEY`、`PLATFORM_ADMIN_PASSWORD`。
-2. 不改既有接口契约（URL、method、认证头、响应外层结构）。
-3. 实现与提交只落 `kuaigeyun-mes/`。沿用该仓现栈：Python 3.11、FastAPI、Pydantic、Tortoise ORM、aerich、PostgreSQL、Taskiq；PC 端 `riveredge-frontend/`（React 18、TypeScript、Vite、Ant Design）。不引入第二套 ORM、认证或前端框架。不要把 `startech-mes-basic` 的 JDK / Spring Boot / MyBatis / Vue 迁入，也不要把快格源码拷回 `startech-mes-basic`。两仓互不合并栈、包名或接口。换栈或大版本升级必须单独立项。
-4. 改模型、枚举、接口或库字段前，核对 `riveredge-frontend` 调用方与 aerich 迁移。租户 / 组织隔离沿用快格现有实现。
-5. 未实际跑通命令，不得声称测试/构建成功。
-6. 外层 `docs/` 按编号分层；开发单元从 `docs/01.temlplates/01.development_unit_template.md` 复制到 `docs/04.specs/`。不要新建并列顶层目录，不要纠正 `01.temlplates` 拼写。
-7. 可调业务配置沿用快格现有配置方式。密钥仍禁止进仓库，也禁止明文进可被运营编辑的配置。
+1. 不改既有接口契约（URL、method、认证头、响应外层结构）。
+2. 实现与提交只落 `kuaigeyun-mes/`。沿用该仓现栈：Python 3.11、FastAPI、Pydantic、Tortoise ORM、aerich、PostgreSQL、Taskiq；PC 端 `riveredge-frontend/`（React 18、TypeScript、Vite、Ant Design）。不引入第二套 ORM、认证或前端框架。不要把 `startech-mes-basic` 的 JDK / Spring Boot / MyBatis / Vue 迁入，也不要把快格源码拷回 `startech-mes-basic`。两仓互不合并栈、包名或接口。换栈或大版本升级必须单独立项。
+3. 改模型、枚举、接口或库字段前，核对 `riveredge-frontend` 调用方与 aerich 迁移。租户 / 组织隔离沿用快格现有实现。
+4. 未实际跑通命令，不得声称测试/构建成功。
+5. 外层 `docs/` 按编号分层；开发单元从 `docs/01.temlplates/01.development_unit_template.md` 复制到 `docs/04.specs/`。不要新建并列顶层目录，不要纠正 `01.temlplates` 拼写。
+6. 可调业务配置沿用快格现有配置方式。密钥仍禁止进仓库，也禁止明文进可被运营编辑的配置。
 
 ## 仓库
 
