@@ -29,9 +29,11 @@
 | --- | --- |
 | `kuaigeyun-mes/riveredge-backend/` | 长期开发的后端（FastAPI）。新后端改这里。 |
 | `kuaigeyun-mes/riveredge-frontend/` | 长期开发的 PC Web。新界面默认改这里。 |
+| `kuaigeyun-mes/kuaigeyun-client/riveredge-app-mobile/` | 移动端 uni-app x 工程（H5、小程序、Android、iOS）；业务调用现有后端。 |
+| `kuaigeyun-mes/kuaigeyun-client/riveredge-app-station/` | 工位端 Electron 壳；业务页面仍在 `riveredge-frontend/`。 |
 | `kuaigeyun-mes/fast-deploy/` | 部署脚本。除非任务点名，不改。 |
 
-改 MES 时 Git 根必须是 `kuaigeyun-mes/`。该仓的提交只在该子仓内进行。
+改 MES 时 Git 根必须是 `kuaigeyun-mes/`。`kuaigeyun-client/` 由该仓跟踪，不另建 Git；该仓的提交只在该子仓内进行。
 
 外层仓库**只保留 `main`**。文档与本文件只在 `main` 上改，不要在外层开长期功能分支。业务主仓 `kuaigeyun-mes/` 不受此约束。
 
