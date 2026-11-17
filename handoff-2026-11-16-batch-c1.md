@@ -49,6 +49,7 @@
 | `db319377bb`（含 `729950ff9e` 字段子集） | `24862efbfd`+`b5e87e6248` | **display_unit_price 录入真源**（C1 前置链） |
 | `4d124a088e` | `180fc3841b` | **单据行价税统一与采购入库含税算价**（全量含依赖移植，142 冲突块消解） |
 | —（基线清理，非上游） | `38cc844138` | 基线遗留修复：6 项 pytest 失败清零 + 全部契约扫描清零 |
+| —（回归修复，非上游） | `54988cdfb3` | 回归审查发现并修复 3 项功能/权限缺陷：销售订单非 update 动作崩溃（`production_fulfillable_map` 先读后赋值死行）、报表分享 `expires_at` naive 串按 UTC 误解释（改 `coerce_business_datetime_to_utc`）、销售预测 `review_submitted` 未解析导致已送审可删/待审不可审（全链路接线含批量删除）；uni-table 工具栏尺寸回退 `'middle'`→`'medium'` |
 
 ### ⚠️ 本次会话新发现：上游又 rebase 出一段平行链
 
@@ -119,7 +120,7 @@ kuaicaiwu 适配 + 模型补建。台账缓置清单中的 C3 项：上游多出
 ## 工作区与仓库状态
 
 - 主仓：`C:\workspaces-all\llm-workspaces\startech-mes\kuaigeyun-mes`，分支 `develop`，**工作区干净**，不 push。
-- HEAD：`38cc844138`（基线清理）。上游同步最新 `180fc3841b`（`4d124a088e` 全量落地）。
+- HEAD：`54988cdfb3`（回归修复）。上游同步最新 `180fc3841b`（`4d124a088e` 全量落地）。
 - stash@{0}（test 分支上）：「未测试的采购/销售/BOM/主数据修改（勿带入）」——**不要 pop**。
 - AOCI `maintain`：仍 **stopped/blocked**（孤儿 `PurchaseReceiptEditModal.tsx` + 708 待创作候选），需单独的 Guide 驱动 authoring run；勿虚报完成。
 
@@ -144,9 +145,9 @@ kuaicaiwu 适配 + 模型补建。台账缓置清单中的 C3 项：上游多出
 - `PurchaseReceiptDetail`/`SalesDeliveryCreateModal` 新页（dormant）、序列号 UI（E 批）、双单位 mixin 尚未挂模型（`DocumentLineDualQuantityFormCell` 已在本批接线使用）。
 - fast-deploy 三文件、payments 页 pull_lines 编辑 UI（C3）。
 
-## 验证基线（`38cc844138` 通过值）
+## 验证基线（`54988cdfb3` 通过值）
 
-- 后端全量 pytest **3825 passed / 0 failed / 18 skipped**（基线 6 项遗留失败已修清零）。
+- 后端全量 pytest **3826 passed / 0 failed / 18 skipped**（基线 6 项遗留失败已修清零；新增 1 项销售订单非 update 动作门禁回归测试）。
 - 全部契约扫描 **0 发现**：`scan_permission_bypass` / `scan_document_action_bypass` / `scan_route_manifest_alignment`（新增，AST 解析）/ `scan_manifest_permissions` / `scan_host_finance_path_leaks` / `scan_timezone_contract` / `scan_forbidden_i18n_keys` / `scan_unitable_row_cache` / `scan_antd6_legacy`（原 117 项清零）。
 - `vite build`+`move-dist` 通过（`NODE_OPTIONS=10240`；8GB 在压缩阶段 OOM 属机器内存约束）。esbuild 改动文件全过。
 - 前端全量 tsc 有 ~2867 处**存量**类型错误（非门禁；构建走 vite/esbuild）。判断新增错误时对照该基线或 HEAD~1。
