@@ -43,6 +43,15 @@
 | `1d968cd27b` | `5c53534472` | 付款 pull_lines+入库行财务占用（kuaicaiwu 落位，80 文件） |
 | `e520cafd37` | `201c69972d` | PO 含税价/price_type/行税率+结算拉单联动 |
 | `db319377bb`（含 `729950ff9e` 字段子集） | `24862efbfd`+`b5e87e6248` | **display_unit_price 录入真源**（C1 前置链，刚落地） |
+| `4d124a088e` | `180fc3841b` | 单据行价税统一与采购入库含税算价（全量含依赖移植） |
+| `31b1179a8e`/`ebdc66ac4d`/`ad91f99f5e` | `32d5cb0b5b` | display_unit_price 失焦反算簇（净增量甄别） |
+| `c346cff13b`（含 `d5f1a83261` 后端子集） | `d8b15c8e78` | 入库价税统一+多源开票全链移植 kuaicaiwu |
+| `6abba1dbd5`（C 域子集） | `74aef8fb30` | **服务采购全流程+申请转单占用**：115 文件混合提交按域切分。已取 order_type 三类采购与存货类别校验、申请 order_type 字段与转 PO 传播/display 录入价、`待审核`/`待我审核`（`pending_my_approval` helper 移植）、转单 source/占用回填自愈、入库表头/行仓库可空+confirm/withdraw 服务采购跳过库存、push_mode draft/confirm 透传、前端 order_type 列+ORDER_TYPE 字典+Service 源过滤+草稿数字 heal（`documentFormDraftCache`）。剔除：金蝶 5 service/inbound_sync/alignment、打印模板、出库域 10+ 文件、审批设计器、uni-* 零散、quotation/demand 杂项。迁移 `2026111810{0,1,2,3}0000`。台账第 49 行有完整清单 |
+| `e16f2f2939`（C 域子集） | `8d5db2825d` | 采购变更 `withdraw_apply` 反应用+endpoint+明细回滚安全门+补偿日志+到货延迟状态复位；申请转单占用改按行 source 聚合（草稿计入/删除排除）；`pullOpenLine.ts` 共享可选行判定；非赠品单价>0 双端校验 |
+| `777aa1a468`/`9de82e8d57`（C 域子集） | `185c50587d` | 申请 pullable_only 查询级过滤+`can_push`/剩余量/状态三门禁+前端 `isPullRequisitionOpenLineSelectable`；采购结算价格展示含 `pay_on_invoice`；顺手修 e16 埋的 `@staticmethod` 吞装饰器 bug（`_apply_purchase_item_price_settlement` 改实例方法） |
+| `d32d1e031d`（C 域子集） | `97ec0acf20` | 税率归一化 `(0,1)`×100、`>=1` 已是百分数——1% 不再抬成 100%；后端 kuaicaiwu `normalize_po_tax_rate_to_percent`+前端 `purchaseOrderTaxRateToPercent` 同契约+双端回归测试 |
+| `ec29267f5b`（C 域子集） | `555b237519` | 付款申请来源订单只读聚合 `purchase_order_sources`+发票情况三值校验（有发票/无发票/发票后补）+PO 审批中间节点不写 reviewer_*+`settlement_terms_label_zh` 码表 |
+| `1eb300325a`（C 域子集·选项C） | `c9edcdc2cd` | 手工建单自动提交**引擎+采购域 hooks**：`manual_create_auto_lifecycle`（全局/单证开关、只调既有 submit、skip 供下推）+business_config 23 单据扁平键注册+6 个采购 hooks（PO/申请/询价/收货通知/入库/付款申请）；入库下推与导入传 `skip_manual_create_auto_submit=True`；引擎 logger `{}`→`%s` 修正。**缓置 F/D**：配置 UI、非采购域 hooks（registry 惰性解析，未接线仅 warning）、审核中心预览/软删复活、租户自愈、金蝶收敛 |
 
 ### ⚠️ 本次会话新发现：上游又 rebase 出一段平行链
 
@@ -83,18 +92,19 @@ git show <old> | git patch-id ; git show <new> | git patch-id   # 逐对验证
 
 `b485a0a0e5`（已落地）与 `4d124a088e` 之间及之后的 C 域候选（上游序，旧→新）：
 
-- `31b1179a8e` 失焦反算（接通 dormant `documentLineInclMatchesDerived`）
-- `ebdc66ac4d`/`ad91f99f5e` PO 金额契约对齐两笔（display_unit_price 同簇前置，未摘）
-- `c346cff13b` 采购入库价税与订单统一及采购链多项修复
+- ~~`31b1179a8e` 失焦反算~~ ✅ `32d5cb0b5b`
+- ~~`ebdc66ac4d`/`ad91f99f5e` PO 金额契约对齐两笔~~ ✅ `32d5cb0b5b`
+- ~~`c346cff13b` 采购入库价税与订单统一及采购链多项修复~~ ✅ `d8b15c8e78`
 - `0c014426a7` 入库撤回前回退应付审核状态（C3）
 - `2e57ae600e` 采购发票取单预览（C3）
 - `2a5b2caf14`/`6ba9b54cdc`/`c583dd0b25` 允许账户负余额三连（C3）
-- `9de82e8d57` 解散群+采购结算价格+图纸（混合）
-- `d32d1e031d` 税率1%归一化+入库金蝶脏辅助单位（C/D）
-- `ec29267f5b` 打印表头+付款申请打印+出库批号（混合）
-- `777aa1a468` 采购取单/企微审批卡/仓储推送/打印（混合大提交）
-- `e16f2f2939` 会签返工部门链+采购变更收口（F/C）
-- `6abba1dbd5` 服务采购全流程+申请转单占用修复
+- ~~`9de82e8d57` 解散群+采购结算价格+图纸（混合）~~ ✅ C 域子集 `185c50587d`（其余剔除留域批次）
+- ~~`d32d1e031d` 税率1%归一化+入库金蝶脏辅助单位（C/D）~~ ✅ `97ec0acf20`
+- ~~`ec29267f5b` 打印表头+付款申请打印+出库批号（混合）~~ ✅ C 域子集 `555b237519`
+- ~~`777aa1a468` 采购取单/企微审批卡/仓储推送/打印（混合大提交）~~ ✅ C 域子集随 `185c50587d`
+- ~~`e16f2f2939` 会签返工部门链+采购变更收口（F/C）~~ ✅ C 域子集 `8d5db2825d`
+- ~~`1eb300325a` 手工建单自动提交等混合~~ ✅ 引擎+采购 hooks `c9edcdc2cd`（其余缓置 F/D）
+- ~~`6abba1dbd5` 服务采购全流程+申请转单占用修复~~ ✅ 已落地 `74aef8fb30`（C 域子集，见台账）
 - `9ec209fab8` 采购订单同步预加载价税+详情未税单价
 - `c588744e04` 生产入库外推改绑成品入库+统一税率%录入（C/D）
 - `4a7f11604c` 采购入库金额写路径+物料快建开关+同步对比组件级
@@ -103,8 +113,6 @@ git show <old> | git patch-id ; git show <new> | git patch-id   # 逐对验证
 - `37409d3b29` 客商地址与取价、列表与物料选择体验
 - `870e5476bf` 销售订单列表作用域遮蔽
 - `93b3cb5998` 工单页签表单+财务取单+委外发料（大混合；批A 台账记为遗留依赖）
-- `1eb300325a` 审核中心预览/软删复活/手工建单自动提交/租户自愈/金蝶收敛（混合；批A 遗留依赖）
-
 其余候选多属 D（金蝶/sync/kingdee/库位）、E（序列号/仓储）、F（审批/企微/kuaioa）、G（deploy/ops）域，按批次划分走。
 
 ### C3 财务簇（批C 尾段）
@@ -114,7 +122,7 @@ kuaicaiwu 适配 + 模型补建。台账缓置清单中的 C3 项：上游多出
 ## 工作区与仓库状态
 
 - 主仓：`C:\workspaces-all\llm-workspaces\startech-mes\kuaigeyun-mes`，分支 `develop`，**工作区干净**，不 push。
-- HEAD：`9cff49ca1e`（台账）。业务最新 `24862efbfd`+`b5e87e6248`。
+- HEAD：`374512a9be`。台账最新：批 C 各笔映射与复核修正全部落账（`8d5db2825d`/`286f44bc03`/`185c50587d`/`97ec0acf20`/`555b237519`/`c9edcdc2cd`+`87454681ce`+`27210d5dc5`）。上游 tip 已前进至 `ca2761ec17`（比评估边界 `dbfcfe37a9` 多 ~12 笔业务提交，C 域归属待评估）。
 - stash@{0}（test 分支上）：「未测试的采购/销售/BOM/主数据修改（勿带入）」——**不要 pop**。
 
 ## 消解与落地约定（下个会话沿用）
@@ -126,6 +134,19 @@ kuaicaiwu 适配 + 模型补建。台账缓置清单中的 C3 项：上游多出
 - **测试归位**：宿主测试→`tests/apps/kuaicaiwu/`；无 DB 环境的用例补 monkeypatch（先例：PurchaseOrder.get、lines_from_purchase_order_items、assert_pull_create_allowed）。
 - **用户可见变更**：`platformUpdateLog.ts` 加条目 + 文案只进 `zh-CN.ts`；台账每笔记取/缓置/剔除与验证。
 
+## 本轮全量业务复核结论（`27210d5dc5` 落地，台账 `374512a9be` 补记）
+
+批 C 全部已摘提交做完业务级复核（非仅语法）：架构边界/tenant/门禁/价税数量/回滚安全/软删/前后端契约/台账一致性。发现并修复两处确定缺陷：
+
+1. `purchase_order_change_service.py` 4 处 `apps.kuaizhizao.finance.*` import（e16 摘取带入）——宿主 finance 目录本地不存在，运行至变更单价写回/头表金额同步/行税率归一化即 `ImportError`；已改导 `apps.kuaicaiwu.services.{finance_tax,purchase_settlement}`。
+2. `SalesOrderChangeCapabilities` 误加 `withdraw_apply` 必填字段（上游仅加 `PurchaseOrderChangeCapabilities`）——销售变更能力推导 pydantic ValidationError→500；按上游边界移除。
+
+**残留注意项**（非缺陷，新会话知悉即可）：
+
+- unapply 重建取消行不回写 `source_type`/`source_id`——若原行是申请来源行，重建后不再挂申请链（上游逐字同款的限制；补链属刻意偏离，未做）。
+- 非采购域 manual_create hooks 惰性解析：缺 submit 方法的节点开启只记 warning，F 批接线自然激活。
+- tracked dist 产物曾大面积被构建删除遗留，已 `git checkout` 恢复；构建注意 `--max-old-space-size` 需传子进程。
+
 ## 已知 dormant/未接线项
 
 - `document_recognition.py`/`finance_recognition.py` 已提取但仅服务级使用；`on_partner_statement` 码 dormant（本地三值枚举 fallback，不会误存）。
@@ -134,6 +155,7 @@ kuaicaiwu 适配 + 模型补建。台账缓置清单中的 C3 项：上游多出
 - `resolveReceiptLineTaxPercent`（PurchaseReceiptCreateModal 已定义未调用，消费端属 4d124a088e）。
 - `PurchaseReceiptDetail`/`SalesDeliveryCreateModal` 新页（dormant）、序列号 UI（E 批）、双单位 mixin 尚未挂模型。
 - fast-deploy 三文件、payments 页 pull_lines 编辑 UI（C3）。
+- `manual_create_auto_lifecycle` 引擎已落地（`c9edcdc2cd`+复核修正 `87454681ce`）：已接线 PO/申请/询价/付款申请 4 个采购 hooks，下推建单 7 处调用点全部传 `skip_manual_create_auto_submit=True`；`receipt_notice`/`purchase_receipt` 两 hook 已撤线缓置（本地无对应 `submit_*` 提交器，属 `d81b4b70bf` 送审链 F 域）——F 批移植上游 `submit_*`/`commit_*`/`_enter_*_review`/`approve_*` 链时重新接线；其余非采购域 hooks 与配置中心 UI 同属 F 批。
 
 ## 验证基线（上一笔 `24862efbfd` 通过值）
 
