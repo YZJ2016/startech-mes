@@ -1,4 +1,4 @@
-# 交接文档 — 上游同步（批C 进行中，停在 4d124a088e 之前）（2026-11-16）
+# 交接文档 — 上游同步（批C 进行中，4d124a088e 已落地）（2026-11-17）
 
 > 本文档是给下个会话的精确接续点。每笔落地详情看 `kuaigeyun-mes/docs/上游同步台账.md`（权威记录），本文只负责「做到哪、下一步做什么、怎么继续」。
 
@@ -12,17 +12,17 @@
 
 上游该段共 ~336 个非 merge 提交，按域分批：
 
-| 批次 | 域 | 规模 | 状态 |
-| --- | --- | --- | --- |
-| 批A | 地基散修（自定义字段、导入导出、UniTable 等） | — | ✅ 完成（台账「批A 地基散修」节，含复查修复） |
-| 批B | 宿主财务 ORM 收口 | 1 笔主线 | ✅ 完成（`52bce20beb`→`6a5df8d50d`，kuaicaiwu 语义适配） |
-| 批C | 价税+采购 | 剩 16 笔 | **进行中，下一笔 `4d124a088e`，见下节** |
-| 批C3 | 财务适配簇（kuaicaiwu 落位） | 剩 31 笔 | 进行中（与 C 交错，尾部收口） |
-| 批D1/D2 | 数据互通（金蝶外推/入站同步/库位/同步对比） | 剩 76 笔 | 未开始 |
-| 批E | 仓储/MES 核心（序列号 UI、库位、工单、委外） | 剩 42 笔 | 未开始 |
-| 批F | 审批/企微/haoligo/OA/杂项 | 剩 48 笔 | 未开始 |
-| 批G | deploy/ops/仓库治理/造数收尾 + merge 净增对账 | 剩 59 笔 + 70 merges | 未开始 |
-| — | 默认跳过候选（e2e/造数） | 10 笔 | 摘前复核 |
+| 批次     | 域                                 | 规模                 | 状态                                             |
+| ------ | --------------------------------- | ------------------ | ---------------------------------------------- |
+| 批A     | 地基散修（自定义字段、导入导出、UniTable 等）       | —                  | ✅ 完成（台账「批A 地基散修」节，含复查修复）                       |
+| 批B     | 宿主财务 ORM 收口                       | 1 笔主线              | ✅ 完成（`52bce20beb`→`6a5df8d50d`，kuaicaiwu 语义适配） |
+| 批C     | 价税+采购                             | 剩 15 笔             | **进行中，`4d124a088e` 已落地，下一笔按上游时序，见下节**    |
+| 批C3    | 财务适配簇（kuaicaiwu 落位）               | 剩 31 笔             | 进行中（与 C 交错，尾部收口）                               |
+| 批D1/D2 | 数据互通（金蝶外推/入站同步/库位/同步对比）           | 剩 76 笔             | 未开始                                            |
+| 批E     | 仓储/MES 核心（序列号 UI、库位、工单、委外）        | 剩 42 笔             | 未开始                                            |
+| 批F     | 审批/企微/haoligo/OA/杂项               | 剩 48 笔             | 未开始                                            |
+| 批G     | deploy/ops/仓库治理/造数收尾 + merge 净增对账 | 剩 59 笔 + 70 merges | 未开始                                            |
+| —      | 默认跳过候选（e2e/造数）                    | 10 笔               | 摘前复核                                           |
 
 **全量清单见文末「附录：全量批次清单」**——334 笔非 merge 提交逐笔列出，含已落地的 52 笔对照。规模数为 2026-11-17 按 gitee/develop 快照圈定，非最初估算。
 
@@ -46,7 +46,9 @@
 | `4ab6cf5ca3` | `c55585ce90` | 申请草稿审核态对齐 |
 | `1d968cd27b` | `5c53534472` | 付款 pull_lines+入库行财务占用（kuaicaiwu 落位，80 文件） |
 | `e520cafd37` | `201c69972d` | PO 含税价/price_type/行税率+结算拉单联动 |
-| `db319377bb`（含 `729950ff9e` 字段子集） | `24862efbfd`+`b5e87e6248` | **display_unit_price 录入真源**（C1 前置链，刚落地） |
+| `db319377bb`（含 `729950ff9e` 字段子集） | `24862efbfd`+`b5e87e6248` | **display_unit_price 录入真源**（C1 前置链） |
+| `4d124a088e` | `180fc3841b` | **单据行价税统一与采购入库含税算价**（全量含依赖移植，142 冲突块消解） |
+| —（基线清理，非上游） | `38cc844138` | 基线遗留修复：6 项 pytest 失败清零 + 全部契约扫描清零 |
 
 ### ⚠️ 本次会话新发现：上游又 rebase 出一段平行链
 
@@ -70,30 +72,45 @@ git cherry -v <旧链基> gitee/develop   # '-'=patch 等价跳过，'+'=新提�
 git show <old> | git patch-id ; git show <new> | git patch-id   # 逐对验证
 ```
 
-### 下一笔：`4d124a088e`「单据行价税统一与采购入库含税算价」（~78 文件）
+### 下一笔：批C 剩余 15 笔，按上游时序评估
 
-摘取要点（会话中已踩点）：
+`4d124a088e` 已全量落地（`180fc3841b`）。剩余 15 笔按 gitee/develop 时序（旧→新）：
 
-- `git cherry-pick -n 4d124a088e`，宿主 `apps.kuaizhizao.finance.*` → `apps.kuaicaiwu.*`，宿主测试移 `tests/apps/kuaicaiwu/`。
-- 已确认本地自含基建就位：`document_line_amounts.py`（后端）、`documentLineAmounts.ts`/`purchaseOrderAmounts.ts`/`purchaseReceiptWarehouseAmounts.ts`/`materialDualQuantity.ts`（前端超集）、`price_precision.py`、`document_recognition.py`。
-- kuaicaiwu `purchase_settlement` 已是上游超集，**别再整文件替换**——只合净增量（`compute_purchase_receipt_line_settlement_amounts`/`sync_*` 已在）。
-- `PurchaseReceiptCreateModal` 继续保本地 props 形态（`open/onClose/onSuccess/receiptId/poCompose`），不取上游 `Record<string,never>` 独立页形态。
-- 双单位录入组件 `DocumentLineDualQuantityFormCell`/`documentLineDualQuantityColumn` 应在本笔自带——全取（60c6a5893b 缓置项由此回补）。
-- 待提取文件候选：`tests/apps/kuaizhizao/utils/test_document_amount_write.py`、`services/document_amount_write.py`（上次摘到一半时已确认属本笔域）。
-- zh-CN/updateLog 只取本笔新增条目（HEAD 空 theirs 新增→取 theirs；HEAD 有→键去重合并）。
-- 摘后：pytest（kuaicaiwu+价税焦点）、ast、leak scan、esbuild 改动文件、台账补记。
+1. `7e553638e1` 发货通知明细 deleted_at 过滤；侧栏图标
+2. `ce86f28932` 销售订单与集成适配
+3. `c09c7d188b` 采购订单类型/审核记录按连线排序
+4. `05fb1f835e` 核心 API 主键唯一与 master_partners 主键/序列修正
+5. `c83c6d5589` 采购入库取单支持采购订单仅回显权限
+6. `52b1abf2e3` 采购详情含税单价与浮动辅单位台账
+7. `31b1179a8e` 失焦反算单价（旧链 `a15174f8ca`，接通 dormant `documentLineInclMatchesDerived`）
+8. `ebdc66ac4d` PO 金额与 documentLineAmounts 契约对齐（旧链 `075b086d3a`）
+9. `ad91f99f5e` PO 头表汇总与前端行价税对齐（旧链 `0d38cc5a57`）
+10. `6abba1dbd5` 服务采购全流程与申请转单占用修复
+11. `88b0c140f1` 下推默认模式改草稿、客户选择快照回显、kuaiplm 联动日志
+12. `c346cff13b` 采购入库价税与订单统一及采购链多项修复（`4d124a088e` 同簇，可能含前置改动）
+13. `37409d3b29` 客商地址与取价、列表与物料选择体验
+14. `9ec209fab8` 采购订单同步预加载价税与详情未税单价（kuaiconnect 域，注意 D 批边界）
+15. `dbfcfe37a9` 销售订单列表、采购入库价税与供应商联系人（批C tip）
+
+摘取要点（延续既有约定）：
+
+- 价税同簇（`c346cff13b`/`52b1abf2e3`/`ebdc66ac4d`/`ad91f99f5e`/`dbfcfe37a9`）优先连续摘，`documentLineInclMatchesDerived`/`resolveReceiptLineTaxPercent` 两个 dormant 消费点在其中（`31b1179a8e`/采购入库侧）。
+- `05fb1f835e` 主键/迁移类——先与本地 14 位时间戳迁移段对账再摘。
+- `9ec209fab8` 带 kuaiconnect 域——摘时剥离 D 批金蝶外推增量。
+- 每笔摘后：pytest 焦点、ast、leak/route-manifest scan、esbuild 改动文件、台账补记。
 
 ### 批C/C3 剩余清单
 
-完整清单见文末附录「批C 剩余 16 笔 + 批C3 31 笔」。其中与当前价税链最紧、应优先评的：
+完整清单见文末附录「批C 剩余 15 笔 + 批C3 31 笔」。其中与当前价税链最紧、应优先评的：
 
-- `ebdc66ac4d`/`ad91f99f5e` PO 金额契约对齐两笔（display_unit_price 同簇前置，旧链 `075b086d3a`/`0d38cc5a57` 未摘）
-- `31b1179a8e` 失焦反算（旧链 `a15174f8ca`，接通 dormant `documentLineInclMatchesDerived`）
-- `c346cff13b` 采购入库价税与订单统一（在 `4d124a088e` 之前的同簇修复，可能含前置改动）
+- `c346cff13b` 采购入库价税与订单统一（`4d124a088e` 同簇，可能含前置改动）
 - `52b1abf2e3` 采购详情含税单价与浮动辅单位台账
+- `ebdc66ac4d`/`ad91f99f5e` PO 金额契约对齐两笔（旧链 `075b086d3a`/`0d38cc5a57`）
+- `31b1179a8e` 失焦反算（接通 dormant `documentLineInclMatchesDerived`）
+- `dbfcfe37a9` 批C tip：销售订单列表、采购入库价税与供应商联系人
 - `0c014426a7`/`2e57ae600e`/`13ac1e63d9`/`d5f1a83261`/`3958bb1524`/`95c4869063` 等 C3 财务簇（kuaicaiwu 落位）
 - `93b3cb5998` 工单页签表单+财务取单+委外发料（大混合；批A 台账记为遗留依赖，含 `outsource_order_receipt` 模型——`finance_settlement_source_query` 缓置项的解锁键）
-- `1eb300325a` 审核中心/软删复活/手工建单自动提交/租户自愈/金蝶收敛（混合；批A 遗留依赖，`3a49808eb6` 的目标文件属它）
+- `1eb300325a` 审核中心/软删复活/手工建单自动提交/租户自愈/金蝶收敛（混合；批A 遗留依赖，`3a49808eb6` 的目标文件属它；`create_purchase_return` 的 `skip_manual_create_auto_submit` dormant 参数消费点也在本笔）
 
 ### C3 财务簇（批C 尾段）
 
@@ -102,8 +119,9 @@ kuaicaiwu 适配 + 模型补建。台账缓置清单中的 C3 项：上游多出
 ## 工作区与仓库状态
 
 - 主仓：`C:\workspaces-all\llm-workspaces\startech-mes\kuaigeyun-mes`，分支 `develop`，**工作区干净**，不 push。
-- HEAD：`9cff49ca1e`（台账）。业务最新 `24862efbfd`+`b5e87e6248`。
+- HEAD：`38cc844138`（基线清理）。上游同步最新 `180fc3841b`（`4d124a088e` 全量落地）。
 - stash@{0}（test 分支上）：「未测试的采购/销售/BOM/主数据修改（勿带入）」——**不要 pop**。
+- AOCI `maintain`：仍 **stopped/blocked**（孤儿 `PurchaseReceiptEditModal.tsx` + 708 待创作候选），需单独的 Guide 驱动 authoring run；勿虚报完成。
 
 ## 消解与落地约定（下个会话沿用）
 
@@ -119,13 +137,18 @@ kuaicaiwu 适配 + 模型补建。台账缓置清单中的 C3 项：上游多出
 - `document_recognition.py`/`finance_recognition.py` 已提取但仅服务级使用；`on_partner_statement` 码 dormant（本地三值枚举 fallback，不会误存）。
 - `_kuaizhizao_document_gate.py`（D 批库位域接线）。
 - `documentLineInclMatchesDerived`（sales-orders 已导入未调用，调用点=`31b1179a8e`）。
-- `resolveReceiptLineTaxPercent`（PurchaseReceiptCreateModal 已定义未调用，消费端属 4d124a088e）。
-- `PurchaseReceiptDetail`/`SalesDeliveryCreateModal` 新页（dormant）、序列号 UI（E 批）、双单位 mixin 尚未挂模型。
+- `resolveReceiptLineTaxPercent`（PurchaseReceiptCreateModal 已定义未调用；`4d124a088e` 落地后仍 dormant，消费点在采购入库价税同簇后续笔）。
+- `skip_manual_create_auto_submit`（`create_purchase_return` 兼容参数已加；消费端 `manual_create_auto_submit_*` 属 `1eb300325a` 域）。
+- `:push` 权限未入 manifest——其他入/出库 PushPanel 与 push-binding 服务方法（`getPushBinding`/`savePushBinding`）已移植但休眠，无后端端点；激活属 D 批。
+- `StorageLocation.warehouse` 可空 FK + `source_location_code` 字段已建（迁移 `20261117120000`），kingdee 库位默认解析使用；`external_sync_at` 未摘（D 域）。
+- `PurchaseReceiptDetail`/`SalesDeliveryCreateModal` 新页（dormant）、序列号 UI（E 批）、双单位 mixin 尚未挂模型（`DocumentLineDualQuantityFormCell` 已在本批接线使用）。
 - fast-deploy 三文件、payments 页 pull_lines 编辑 UI（C3）。
 
-## 验证基线（上一笔 `24862efbfd` 通过值）
+## 验证基线（`38cc844138` 通过值）
 
-- kuaicaiwu 全量 pytest **174 过**；pull 焦点组 15 过；`purchaseOrderAmounts.test.ts` 3 过；ast 全过；`scan_host_finance_path_leaks` ok；esbuild 改动文件 0 错误。
+- 后端全量 pytest **3825 passed / 0 failed / 18 skipped**（基线 6 项遗留失败已修清零）。
+- 全部契约扫描 **0 发现**：`scan_permission_bypass` / `scan_document_action_bypass` / `scan_route_manifest_alignment`（新增，AST 解析）/ `scan_manifest_permissions` / `scan_host_finance_path_leaks` / `scan_timezone_contract` / `scan_forbidden_i18n_keys` / `scan_unitable_row_cache` / `scan_antd6_legacy`（原 117 项清零）。
+- `vite build`+`move-dist` 通过（`NODE_OPTIONS=10240`；8GB 在压缩阶段 OOM 属机器内存约束）。esbuild 改动文件全过。
 - 前端全量 tsc 有 ~2867 处**存量**类型错误（非门禁；构建走 vite/esbuild）。判断新增错误时对照该基线或 HEAD~1。
 - zh-CN 既有重复键告警存在（非本次引入，不处理）。
 
@@ -135,7 +158,7 @@ kuaicaiwu 适配 + 模型补建。台账缓置清单中的 C3 项：上游多出
 > 另有 **70 个 merge 提交**不在下表（`git log --merges` 查），批G 收尾时按净增量 diff 复核。
 > `git cherry -v develop gitee/develop`：23 笔 `-`（patch 等价已落地）；`+` 笔中除本清单已标 ✅ 的摘取/适配外即为待办。
 
-### 批C 剩余（价税/采购/销售） — 16 笔
+### 批C 剩余（价税/采购/销售） — 15 笔（`4d124a088e` 已落地 `180fc3841b`）
 - `7e553638e1` fix: 发货通知明细误用 deleted_at 过滤；侧栏图标恢复同尺寸形变
 - `ce86f28932` feat(sales): 销售订单与集成适配
 - `c09c7d188b` fix: 采购订单类型只留两项，审核记录按连线排序
@@ -148,7 +171,7 @@ kuaicaiwu 适配 + 模型补建。台账缓置清单中的 C3 项：上游多出
 - `6abba1dbd5` feat(kuaizhizao): 服务采购全流程与申请转单占用修复
 - `88b0c140f1` feat(config,ui): 下推默认模式改草稿、客户选择快照回显与kuaiplm联动日志
 - `c346cff13b` fix(kuaizhizao): 采购入库价税与订单统一及采购链多项修复
-- `4d124a088e` feat(kuaizhizao): 单据行价税统一与采购入库含税算价
+- ~~`4d124a088e` feat(kuaizhizao): 单据行价税统一与采购入库含税算价~~ ✅ `180fc3841b`
 - `37409d3b29` feat: 客商地址与取价、列表与物料选择体验
 - `9ec209fab8` fix(kuaiconnect,purchase): 采购订单同步预加载价税与详情未税单价
 - `dbfcfe37a9` fix(kuaizhizao): 销售订单列表、采购入库价税与供应商联系人
@@ -484,4 +507,5 @@ kuaicaiwu 适配 + 模型补建。台账缓置清单中的 C3 项：上游多出
 - `390ddecff0` [跳过-依赖] fix(inbound): 采购入库页补 JSX fragment 以通过前端构建
 - `c6e5a46161` [跳过-依赖] fix(purchase): 修正采购申请库存组件 DocumentLineTotalStock 引用路径
 - `0f841b6a1b` [跳过-依赖] fix(kuaizhizao): 修复工单 BOM 预览权限依赖导致整包路由 404
-
+- `4d124a088e` [C✓全量] feat(kuaizhizao): 单据行价税统一与采购入库含税算价 → `180fc3841b`（连依赖移植：退货下推/其他出库行编辑/XLSX 导出/uni-pull·batch·push 基建/audit hub；`:push` 权限未声明故 push 面板休眠；pytest 3819p/6f 全为基线预存量）
+- `38cc844138` [基线清理] 修复批C全量验证暴露的基线遗留问题（非上游提交）：追溯闭集补 purchase_inquiry；manifest 测试 UTF-8；document_action_policy None 语义；kingdee_cosmic_paths 补 apply_connector_org_to_payload；新增 scan_route_manifest_alignment.py（AST 解析）并修 kuaiplm:change:create / drawing 权限码 / material-lifecycle-trace 声明 / module_references 漂移；sales_order_change_service 复用 is_pending 消门禁告警；antd6 全量修复（size 枚举/Space orientation/Alert title/Dropdown.Button/destroyOnHidden/addon*/Drawer size）；common.remarks→common.remark 7 处；时区契约 32 项清零（resolve_business_datetime/now_utc/to_api_isoformat + 前端 toApiDateTimeString/formatDateTimeBySiteSetting）。验证：pytest 3825 passed / 0 failed；全部扫描 0 发现。未推送。
