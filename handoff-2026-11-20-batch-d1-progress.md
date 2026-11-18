@@ -2,7 +2,7 @@
 
 ## 状态
 
-- 本地 HEAD：`60259301a4`（develop，未推送）
+- 本地 HEAD：`bd7f3df973`（develop，未推送）
 - 快照：`backup/batch-d-pre-20261120`（基于 `af397c67c7`）；上游 tip：`33e054b5d8`
 - 台账：`docs/上游同步台账.md` 已登记本簇 8 笔（含越界段 `e451b48dc2` D 子集）
 
@@ -27,9 +27,13 @@
 - zh-CN updateLog 键大量已在 HEAD 预置：加键前先 grep，重复只补条目
 - 上游 `material_group_preset_needs_upgrade` 测试断言与实现自相矛盾，本地按实现契约对齐
 
+## 已落地（续）
+
+| `2c945a39fb` | `bd7f3df973`：kingdee_cosmic_push_adapter+kingdee_purchase_receipt_push_service（im_purinbill 出站注册进诚实集合）+仓库 sbd getList 改写/预置/前端入库 Hub 外推面板+manifest inbound:push；E/F/G 域剔除 |
+
 ## 下一笔
 
-按上游时序续扫 `2c945a39fb`（苍穹采购入库出站+`kingdee_cosmic_push_adapter`+仓库 getList 同步+设备/字段权限联调）→ `2e8ecad990` → `4bd853a94f` → `d7966d33c6` → `d7da8e14f8` → `905787348a` → `a0b353ce7e` 主体 → `5d65aa9fa4` → `37e5213a50` …（清单见 `handoff-2026-11-16-batch-c1.md` 附录批D1/D2 76 笔）
+`2e8ecad990`（苍穹销售出库/其他出库/盘盈盘亏出站——4 个新 push service≈1900 行+面板+presets；企微同步推送属 F 域剔除）→ `4bd853a94f` → `4bd853a94f` → `d7966d33c6` → `d7da8e14f8` → `905787348a` → `a0b353ce7e` 主体 → `5d65aa9fa4` → `37e5213a50` …（清单见 `handoff-2026-11-16-batch-c1.md` 附录批D1/D2 76 笔）
 
 跨批余量：`c588744e04` kingdee 两件 / `4a7f11604c` sync-push-hub 三页+核对账 / `d32d1e031d` 金蝶脏辅助单位 / `ce86f28932` api_service 预置+`report_service._finalize_inventory_api_rows` 前置链
 
