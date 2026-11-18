@@ -1,9 +1,11 @@
-# 批D1/D2 进度交接 — 2026-11-20（结构前置簇已落地 `60259301a4`）
+# 批D1/D2 进度交接 — 2026-11-20（结构前置 + 苍穹出站链已落地，已推送，可直接续）
 
 ## 状态
 
-- 本地 HEAD：`3268f93cd2`（develop）
+- 本地 HEAD：`3268f93cd2`（develop，**已推送** `origin cdb3e90330..3268f93cd2`，7 笔）
+- 根仓 `startech-mes`：`main` `a5a2270` 已推（远程 `develop` 误建分支已删）
 - 快照：`backup/batch-d-pre-20261120`（基于 `af397c67c7`）；上游 tip：`33e054b5d8`
+- 新会话开场：读本文 + `kuaigeyun-mes/docs/上游同步台账.md` D 批段 + `AGENTS.md` 上游同步约束即可续扫
 - 台账：`docs/上游同步台账.md` 已登记本簇 8 笔（含越界段 `e451b48dc2` D 子集）
 
 ## 已落地（上游 → 本批）
@@ -37,7 +39,7 @@
 
 ## 下一笔
 
-`4bd853a94f`（采购入库入站同步/绑表簇——须先评本地绑表冲突）→ `905787348a`（sync-run 历史）→ `a0b353ce7e` 主体（其他入出库绑表/外推）→ `5d65aa9fa4`（客户/销售订单入站）→ `37e5213a50` …（清单见 `handoff-2026-11-16-batch-c1.md` 附录批D1/D2 76 笔）
+`4bd853a94f`（采购入库入站同步/绑表簇——须先评本地绑表冲突；`api_sync_binding_refs` 登记规则见下「关键决策」）→ `905787348a`（sync-run 历史——**含前端 `SyncPushHubModal.historySourceType`/`SyncRunHistoryPanel`/`listDocumentPushRunHistory`，是 other-inbound/other-outbound 页存量编译负债的唯一正解，优先摘**）→ `959f65b743`（同步对比 `SyncReconcilePanel`/`reconcileDocumentPush`，依赖外推链已逐步就位）→ `a0b353ce7e` 主体（其他入出库绑表/外推；注意补 `kingdee_im_otherinbill` 入 `DOCUMENT_PUSH_KNOWN_PROFILES`）→ `5d65aa9fa4`（客户/销售订单入站）→ `37e5213a50` …（清单见 `handoff-2026-11-16-batch-c1.md` 附录批D1/D2 76 笔）
 
 跨批余量：`c588744e04` kingdee 两件 / `4a7f11604c` sync-push-hub 三页+核对账 / `d32d1e031d` 金蝶脏辅助单位 / `ce86f28932` api_service 预置+`report_service._finalize_inventory_api_rows` 前置链
 
