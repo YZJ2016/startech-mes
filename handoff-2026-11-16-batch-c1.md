@@ -134,18 +134,34 @@ kuaicaiwu 适配 + 模型补建。台账缓置清单中的 C3 项：上游多出
 - 非采购域 manual_create hooks 惰性解析：缺 submit 方法的节点开启只记 warning，F 批接线自然激活。
 - tracked dist 产物曾大面积被构建删除遗留，已 `git checkout` 恢复；构建注意 `--max-old-space-size` 需传子进程。
 
+## 批C 整体终审（`d78dffeaed..origin/develop`，4 路并行审查，本轮修复见下）
+
+C3 开启前对批C 累计范围做终审：两路摘取完整性 + 功能回归 + 逻辑漏洞。
+
+**完整性**：全部声明「已取」项在库可调用，无静默遗漏。台账 `c346cff13b` 行 4 端点名曾误记（非真实上游符号），已更正为真实端点 `get_purchase_receipt_return_preview`/`list_purchase_return_purchase_receipt_pull_lines`/`pull_purchase_return_from_purchase_receipt`/`pull_purchase_returns_from_purchase_receipt_items`。
+
+**修复**：
+
+1. **收货通知单审核半接线（必 400）**：前端批提交/审核菜单、保存后 `commit`、`showCommitSubmit` 按 shipment_notice 模式接线，但本地 `receipt_notice` 未注册为审核实体（manifest.audit 无条目、`_DISPATCH` 无键、capabilities 不含 submit/approve）→ 保存即报「实体未声明」。按既有缓置决策撤线前端审核路径，恢复基线 notify/withdraw 生命周期；uni-audit 服务方法与 manifest 权限码 dormant 待 F 批 `d81b4b70bf` 送审链。
+2. **`manual_create_auto_lifecycle` 幻影节点**：`receipt_notice`/`purchase_receipt`/`other_expense_application` 指向不存在的提交器（异常被吞成死开关）已从 DOCS+registry 移除；`other_income`/`other_expense` 解析路径改指 `apps.kuaicaiwu.*`（拆分后未同步）。注册测试补「全 DOCS↔registry 覆盖」断言。
+3. **付款申请**：`application_date` 默认改 `to_site_date(resolve_business_datetime())`（原 `date.today()` 服务器本地日，跨时区零点错一天）；两处 `Payable.get` 补租户+软删纵深过滤。
+4. **清理**：`_agent_debug_ndjson` 调试残留、`resolveReceiptLineTaxPercent` 死函数、`test_unknown_node_key_not_enabled` 的 `get_event_loop()` 隔离缺陷（→`@pytest.mark.asyncio`）均已修。
+
+**确认无问题**：uni-pull/batch/audit-hub 休眠件不误触；`pay_mode` 去必填系上游刻意对齐（台账已记）；`/unapply` 用 module_access 与文件内其余端点一致（低优先跟进项）。
+
 ## 已知 dormant/未接线项
 
 - `document_recognition.py`/`finance_recognition.py` 已提取但仅服务级使用；`on_partner_statement` 码 dormant（本地三值枚举 fallback，不会误存）。
 - `_kuaizhizao_document_gate.py`（D 批库位域接线）。
-- `documentLineInclMatchesDerived`（sales-orders 已导入未调用，调用点=`31b1179a8e`）。
-- `resolveReceiptLineTaxPercent`（PurchaseReceiptCreateModal 已定义未调用，消费端属 4d124a088e）。
+- `documentLineInclMatchesDerived`/`documentLineExclMatchesDerived` 已接线（`32d5cb0b5b` 失焦反算守卫）。
 - `PurchaseReceiptDetail`/`SalesDeliveryCreateModal` 新页（dormant）、序列号 UI（E 批）、双单位 mixin 尚未挂模型。
 - fast-deploy 三文件、payments 页 pull_lines 编辑 UI（C3）。
-- `manual_create_auto_lifecycle` 引擎已落地（`c9edcdc2cd`+复核修正 `87454681ce`）：已接线 PO/申请/询价/付款申请 4 个采购 hooks，下推建单 7 处调用点全部传 `skip_manual_create_auto_submit=True`；`receipt_notice`/`purchase_receipt` 两 hook 已撤线缓置（本地无对应 `submit_*` 提交器，属 `d81b4b70bf` 送审链 F 域）——F 批移植上游 `submit_*`/`commit_*`/`_enter_*_review`/`approve_*` 链时重新接线；其余非采购域 hooks 与配置中心 UI 同属 F 批。
+- `manual_create_auto_lifecycle` 引擎已落地（`c9edcdc2cd`+复核修正 `87454681ce`+本轮注册表清理）：已接线 PO/申请/询价/付款申请 4 个采购 hooks，下推建单 7 处调用点全部传 `skip_manual_create_auto_submit=True`；幻影节点 `receipt_notice`/`purchase_receipt`/`other_expense_application` 已移除（属 `d81b4b70bf` 送审链 F 域，移植 `submit_*`/`commit_*`/`_enter_*_review`/`approve_*` 链时重新接线）；`other_income`/`other_expense` 解析指 `apps.kuaicaiwu.*`；其余非采购域 hooks 与配置中心 UI 同属 F 批。
+- 收货通知单 uni-audit 前端服务方法（commit/submitForReview/withdrawSubmit/approve/revokeApproval）与 manifest 审核权限码 dormant：本地 `receipt_notice` 非注册审核实体，F 批补齐 manifest.audit+_DISPATCH+capabilities 后再接线。
 
-## 验证基线（上一笔 `24862efbfd` 通过值）
+## 验证基线（批C 终审修复后）
 
+- 后端全量 pytest **3843 passed / 0 failed / 18 skipped**；`scan_timezone_contract`/`scan_document_action_bypass`/`scan_route_manifest_alignment` 均 0 发现；esbuild 改动文件通过。
 - kuaicaiwu 全量 pytest **174 过**；pull 焦点组 15 过；`purchaseOrderAmounts.test.ts` 3 过；ast 全过；`scan_host_finance_path_leaks` ok；esbuild 改动文件 0 错误。
 - 前端全量 tsc 有 ~2867 处**存量**类型错误（非门禁；构建走 vite/esbuild）。判断新增错误时对照该基线或 HEAD~1。
 - zh-CN 既有重复键告警存在（非本次引入，不处理）。
