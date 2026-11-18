@@ -1,4 +1,4 @@
-# 交接文档 — 上游同步（批C 进行中，已摘至 `1eb300325a` 簇，HEAD `374512a9be`）（2026-11-18）
+# 交接文档 — 上游同步（批C3 进行中，已摘至 `3958bb1524`，HEAD `2e80763b9c`）（2026-11-19 更新）
 
 > 本文档是给下个会话的精确接续点。每笔落地详情看 `kuaigeyun-mes/docs/上游同步台账.md`（权威记录），本文只负责「做到哪、下一步做什么、怎么继续」。
 
@@ -109,7 +109,8 @@ kuaicaiwu 适配 + 模型补建。台账缓置清单中的 C3 项：上游多出
 ## 工作区与仓库状态
 
 - 主仓：`C:\workspaces-all\llm-workspaces\startech-mes\kuaigeyun-mes`，分支 `develop`，**工作区干净**，不 push。
-- HEAD：`374512a9be`。台账最新：批 C 各笔映射与复核修正全部落账（`8d5db2825d`/`286f44bc03`/`185c50587d`/`97ec0acf20`/`555b237519`/`c9edcdc2cd`+`87454681ce`+`27210d5dc5`）。上游 tip 已前进至 `ca2761ec17`（比评估边界 `dbfcfe37a9` 多 ~12 笔业务提交，C 域归属待评估）。
+- HEAD：`2e80763b9c`（3958 复核补摘修复+台账补记）。批C3 已摘 9 个落地提交+3 台账提交+1 复核修复（见上节映射）。上游 tip 以 `git log gitee/develop` 实测为准。
+- `3958bb1524` 复核补摘（`2e80763b9c`）：入库行未税 `resolve_purchase_receipt_line_excl_amount`（建单/更新两路径）、入库确认立应付金额切 `purchase_receipt_settlement_gross_async`、入库列表批量 `settlement_gross`、`write_path_policy` 加 `repair-settlement` 关键路径。
 - stash@{0}（test 分支上）：「未测试的采购/销售/BOM/主数据修改（勿带入）」——**不要 pop**。
 
 ## 消解与落地约定（下个会话沿用）
@@ -191,38 +192,15 @@ C3 开启前对批C 累计范围做终审：两路摘取完整性 + 功能回归
 - `9ec209fab8` fix(kuaiconnect,purchase): 采购订单同步预加载价税与详情未税单价
 - `dbfcfe37a9` fix(kuaizhizao): 销售订单列表、采购入库价税与供应商联系人
 
-### 批C3 财务适配簇（kuaicaiwu 落位） — 31 笔
-- `432bd5f7fd` fix: 专业包 ORM 就绪门禁，避免未启用时 default_connection 空连
-- `6fb3e77b05` fix(ui): 菜单徽章、UniTabs 关闭与轻财务合并取单
-- `2c76a942c2` feat(kuaizhizao): finance host API, payment-app revoke audit, FE cutov
-- `015d84a9eb` fix(kuaizhizao): exchange-rates page import gl service and permission 
-- `fa5ce815bc` fix(kuaizhizao): 采购退货/应付取单与 Web 产物分流
-- `31efc2b64c` feat: 财务 ORM 门禁扫描与主数据/实时链路修复，补 e2e 用例
-- `e75380e080` feat(finance): 预付冲应付、付款垫付与退款列表规范
-- `1efec0da1d` feat(finance): 资金调拨、采购预付落库冲应付与来料检验体验
-- `748c658015` fix(finance): 修正资金调拨页 ActionConfirm 导入路径
-- `a8b0567580` fix(finance): 修正资金调拨页字段对齐模块导入路径
-- `beef6118ba` fix(finance): 其他费用收支与付款链路修复，并补支出关联入库
-- `189ec25e22` fix(kuaizhizao): 销售出库取单支持整仓，并完善其他费用申请
-- `154977d948` fix: 阶梯取价、待我审核、付款申请回写与入库付款方式
-- `a2473e9b42` feat(qms): 质量体系深化，并修复付款确认关联过滤
-- `d11f9ce75f` fix: 付款单总额为0列表失败，并完善 SOP 搜索与 QC SOP 菜单
-- `406a8f8797` fix: 采购入库继承立账策略，并修复移动端登录 401 提示
-- `3958bb1524` feat(finance): 付款 pull 明细、采购入库取单与应付列表操作优化
-- `95c4869063` feat(finance): 预付抵扣付款单与采购入库取单优化
-- `63395aa98e` fix: 提交不再占死连接，并修复预付抵扣与费用申请审核
-- `899307f4d6` feat(audit,warehouse,finance): 直接提交审核、批号分摊与入库付款修复
-- `d5f1a83261` feat(finance,purchase): 采购发票同供应商多选与申请分批转单
-- `9de82e8d57` feat(im,purchase,drawings): 解散群与实时收件事务、采购结算价格与图纸详情操作修复 —— **采购结算价格 C 子集已摘 `185c50587d`，im/drawings 余量待批**
-- `ec29267f5b` fix(kuaizhizao): 打印表头、付款申请打印与出库批号等单位修正 —— **付款申请聚合/发票校验 C 子集已摘 `555b237519`，打印/出库余量待批**
-- `2a5b2caf14` feat(finance): 配置中心支持允许账户负余额
-- `6ba9b54cdc` fix(config): 允许账户负余额挂到参数设置财务分类
-- `c583dd0b25` docs(i18n): 更新日志注明负余额开关在参数设置财务
-- `2e57ae600e` fix(finance): 采购发票取单下一步预览不再被挡住
-- `0c014426a7` fix(kuaizhizao): 采购入库撤回前自动回退入库来源应付审核状态
-- `13ac1e63d9` fix(kuaizhizao): 修复采购发票登记 DocumentRelation 误用软删过滤
-- `93b3cb5998` feat(kuaizhizao): 工单页签表单、财务取单与委外发料等业务合入
-- `5b1b9828e4` fix(kuaizhizao): 出库序列号、预收取单、对账单立账与工单审核等
+### 批C3 财务适配簇（kuaicaiwu 落位） — 31 笔（28 已决/已摘，剩 `899307f4d6`/`93b3cb5998`/`5b1b9828e4`）
+
+已落地映射（详见台账）：`f417498947`（小修簇：13ac1e63d9+a2473e9b42子集+d11f9ce75f子集+2e57ae600e+0c014426a7+负余额三连 2a5b2caf14/6ba9b54cdc/c583dd0b25+e75380e080 垫付）、`94e6e07f42`（63395aa98e infra：嵌套事务/schedule_after_commit/序号独立连接）、`b1fa1fc305`（1efec0da1d+748c+a8b0 资金调拨）、`00356fdff0`（fa5ce815bc patch等价+updateLog）、`8192e92072`（beef6118ba+189ec25e22 其他费用/付款链路）、`96174f05dd`（95c4869063+63395 pull offset hunks 预付抵扣）、`d3fd8abb44`（154977d948+6fb3e77b05 回写/徽章/合并取单）、`2b2403ef5d`（3958bb1524 核销门控/补核销/价税取数/入库取单跳转）。跳过/已决：432bd5f7fd（app_orm 适配）、2c76a942c2（宿主包不取，仅摘申请撤销+字段修复）、015d84a9eb（本地天然正确）、31efc2b64c（scan_host_finance_path_leaks.py）、406a8f8797（patch 等价）、d5f1a83261（多源开票后端随 d8b15c8e78）。
+
+- `899307f4d6` feat(audit,warehouse,finance): 直接提交审核、批号分摊与入库付款修复 —— **待摘**
+- `93b3cb5998` feat(kuaizhizao): 工单页签表单、财务取单与委外发料等业务合入 —— **待摘（对账立账链：`receipt_pull_line`/`finance_settlement_source_query`/`partner_statement_invoice_pull`+最小 `outsource_order_receipt` 模型）**
+- `5b1b9828e4` fix(kuaizhizao): 出库序列号、预收取单、对账单立账与工单审核等 —— **待摘**
+- `9de82e8d57` —— 采购结算价格 C 子集已摘 `185c50587d`，im/drawings 余量待批
+- `ec29267f5b` —— 付款申请聚合/发票校验 C 子集已摘 `555b237519`，打印/出库余量待批
 
 ### 批D1/D2 数据互通（金蝶/同步/库位） — 76 笔
 - `2c945a39fb` feat: 苍穹采购入库出站、仓库 getList 同步与设备/字段权限等联调改动
