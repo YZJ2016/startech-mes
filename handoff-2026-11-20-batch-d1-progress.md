@@ -2,7 +2,7 @@
 
 ## 状态
 
-- 本地 HEAD：`bd7f3df973`（develop，未推送）
+- 本地 HEAD：`3268f93cd2`（develop）
 - 快照：`backup/batch-d-pre-20261120`（基于 `af397c67c7`）；上游 tip：`33e054b5d8`
 - 台账：`docs/上游同步台账.md` 已登记本簇 8 笔（含越界段 `e451b48dc2` D 子集）
 
@@ -30,14 +30,20 @@
 ## 已落地（续）
 
 | `2c945a39fb` | `bd7f3df973`：kingdee_cosmic_push_adapter+kingdee_purchase_receipt_push_service（im_purinbill 出站注册进诚实集合）+仓库 sbd getList 改写/预置/前端入库 Hub 外推面板+manifest inbound:push；E/F/G 域剔除 |
+| `2e8ecad990` | `ada8809fd2`：苍穹 4 外推 service（im_saloutbill/im_otheroutbill/im_surplusbill/im_deficitbill）+2 面板新页+三页 Hub+BatchPanel 按 profile 选 API+manifest/hook；OtherOutbound 面板/接线 HEAD 已具剔除 |
+| `d7966d33c6` | `a12547f46b`：612 无 status 失败外壳双端拦截+warehouse_preset_needs_upgrade 扩 description/api_service 仓库自愈两路 |
+| `d7da8e14f8` | `a12547f46b`：连接器 org_number 唯一组织真源（apply_connector_org_to_payload）+预设去 BU-00000+单位下拉 ids 精确查；common.sh N/A |
+| review 修复 | `3268f93cd2`：子代理双端 review → `kingdee_cosmic_response_status.py` 独立模块（上游 tip 结构，failCount/successCount/filter）；`DocumentPushBatchPanel` 收敛 tip（`2e8ecad990` git apply 曾误删 bindActionOptions 等 prop）；`useUniPullQuery.resetModal` 补（上游潜在缺失）；payload `force`；候选分页 skip/limit；inbound purchase 勾选恒可选；前端 manifest 4 push 权限；conftest 模型补 |
 
 ## 下一笔
 
-`2e8ecad990`（苍穹销售出库/其他出库/盘盈盘亏出站——4 个新 push service≈1900 行+面板+presets；企微同步推送属 F 域剔除）→ `4bd853a94f` → `4bd853a94f` → `d7966d33c6` → `d7da8e14f8` → `905787348a` → `a0b353ce7e` 主体 → `5d65aa9fa4` → `37e5213a50` …（清单见 `handoff-2026-11-16-batch-c1.md` 附录批D1/D2 76 笔）
+`4bd853a94f`（采购入库入站同步/绑表簇——须先评本地绑表冲突）→ `905787348a`（sync-run 历史）→ `a0b353ce7e` 主体（其他入出库绑表/外推）→ `5d65aa9fa4`（客户/销售订单入站）→ `37e5213a50` …（清单见 `handoff-2026-11-16-batch-c1.md` 附录批D1/D2 76 笔）
 
 跨批余量：`c588744e04` kingdee 两件 / `4a7f11604c` sync-push-hub 三页+核对账 / `d32d1e031d` 金蝶脏辅助单位 / `ce86f28932` api_service 预置+`report_service._finalize_inventory_api_rows` 前置链
 
 ## 验证基线
 
-- pytest 相关域 193 过；tsc 增量 0 新错（存量负债同基线）
+- pytest 相关域 128 过（paths/source_rows/integration/data/kuaiiot 全绿，3153 总过 1 修）；前端 `build:16g` 出 dist 成功并已提交
+- tsc：触及文件 0 错；`historySourceType`/`SyncReconcilePanel`/`SyncRunHistoryPanel`/`listDocumentPushRunHistory`/`reconcileDocumentPush` 属 `905787348a`+`959f65b743` 未摘层，为 HEAD 存量负债（other-inbound/other-outbound 页已传 prop）——随主扫领回，禁止半摘
+- 遗留：`kingdee_im_otherinbill` 未入 `DOCUMENT_PUSH_KNOWN_PROFILES`（随其他入库出站提交一并补）；`document_push_silent` 新源类型仅手动推（上游同）
 - `scan_timezone_contract`/`scan_document_action_bypass` 0；`scan_permission_bypass` 1 条 manifest 既有告警

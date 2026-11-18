@@ -1,0 +1,17 @@
+{
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__",
+    "**/.*",
+    "startech-mes-basic",
+    "docs",
+    "scripts",
+    "kuaigeyun-mes/docs",
+    "kuaigeyun-mes/fast-deploy",
+    "kuaigeyun-mes/kuaigeyun-client",
+    "kuaigeyun-mes/riveredge-frontend",
+    "**/dist",
+    "**/target",
+    "**/build"
+  ]
+}
