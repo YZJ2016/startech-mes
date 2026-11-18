@@ -43,7 +43,7 @@
 | `1d968cd27b` | `5c53534472` | 付款 pull_lines+入库行财务占用（kuaicaiwu 落位，80 文件） |
 | `e520cafd37` | `201c69972d` | PO 含税价/price_type/行税率+结算拉单联动 |
 | `db319377bb`（含 `729950ff9e` 字段子集） | `24862efbfd`+`b5e87e6248` | **display_unit_price 录入真源**（C1 前置链，刚落地） |
-| `4d124a088e` | `180fc3841b` | 单据行价税统一与采购入库含税算价（全量含依赖移植） |
+| `4d124a088e` | `28049fbd99` | 单据行价税统一与采购入库含税算价（全量含依赖移植） |
 | `31b1179a8e`/`ebdc66ac4d`/`ad91f99f5e` | `32d5cb0b5b` | display_unit_price 失焦反算簇（净增量甄别） |
 | `c346cff13b`（含 `d5f1a83261` 后端子集） | `d8b15c8e78` | 入库价税统一+多源开票全链移植 kuaicaiwu |
 | `6abba1dbd5`（C 域子集） | `74aef8fb30` | **服务采购全流程+申请转单占用**：115 文件混合提交按域切分。已取 order_type 三类采购与存货类别校验、申请 order_type 字段与转 PO 传播/display 录入价、`待审核`/`待我审核`（`pending_my_approval` helper 移植）、转单 source/占用回填自愈、入库表头/行仓库可空+confirm/withdraw 服务采购跳过库存、push_mode draft/confirm 透传、前端 order_type 列+ORDER_TYPE 字典+Service 源过滤+草稿数字 heal（`documentFormDraftCache`）。剔除：金蝶 5 service/inbound_sync/alignment、打印模板、出库域 10+ 文件、审批设计器、uni-* 零散、quotation/demand 杂项。迁移 `2026111810{0,1,2,3}0000`。台账第 49 行有完整清单 |
@@ -170,7 +170,7 @@ kuaicaiwu 适配 + 模型补建。台账缓置清单中的 C3 项：上游多出
 - ~~`6abba1dbd5` feat(kuaizhizao): 服务采购全流程与申请转单占用修复~~ ✅ `74aef8fb30`（C 域子集，金蝶/打印/出库域剔除）
 - `88b0c140f1` feat(config,ui): 下推默认模式改草稿、客户选择快照回显与kuaiplm联动日志
 - ~~`c346cff13b` fix(kuaizhizao): 采购入库价税与订单统一及采购链多项修复~~ ✅ `d8b15c8e78`（含 `d5f1a83261` 后端子集）
-- ~~`4d124a088e` feat(kuaizhizao): 单据行价税统一与采购入库含税算价~~ ✅ `180fc3841b`
+- ~~`4d124a088e` feat(kuaizhizao): 单据行价税统一与采购入库含税算价~~ ✅ `28049fbd99`
 - `37409d3b29` feat: 客商地址与取价、列表与物料选择体验
 - `9ec209fab8` fix(kuaiconnect,purchase): 采购订单同步预加载价税与详情未税单价
 - `dbfcfe37a9` fix(kuaizhizao): 销售订单列表、采购入库价税与供应商联系人
@@ -506,8 +506,10 @@ kuaicaiwu 适配 + 模型补建。台账缓置清单中的 C3 项：上游多出
 - `390ddecff0` [跳过-依赖] fix(inbound): 采购入库页补 JSX fragment 以通过前端构建
 - `c6e5a46161` [跳过-依赖] fix(purchase): 修正采购申请库存组件 DocumentLineTotalStock 引用路径
 - `0f841b6a1b` [跳过-依赖] fix(kuaizhizao): 修复工单 BOM 预览权限依赖导致整包路由 404
-- `4d124a088e` [C✓全量] feat(kuaizhizao): 单据行价税统一与采购入库含税算价 → `180fc3841b`（连依赖移植：退货下推/其他出库行编辑/XLSX 导出/uni-pull·batch·push 基建/audit hub；`:push` 权限未声明故 push 面板休眠；pytest 3819p/6f 全为基线预存量）
-- `38cc844138` [基线清理] 修复批C全量验证暴露的基线遗留问题（非上游提交）：追溯闭集补 purchase_inquiry；manifest 测试 UTF-8；document_action_policy None 语义；kingdee_cosmic_paths 补 apply_connector_org_to_payload；新增 scan_route_manifest_alignment.py（AST 解析）并修 kuaiplm:change:create / drawing 权限码 / material-lifecycle-trace 声明 / module_references 漂移；sales_order_change_service 复用 is_pending 消门禁告警；antd6 全量修复（size 枚举/Space orientation/Alert title/Dropdown.Button/destroyOnHidden/addon*/Drawer size）；common.remarks→common.remark 7 处；时区契约 32 项清零（resolve_business_datetime/now_utc/to_api_isoformat + 前端 toApiDateTimeString/formatDateTimeBySiteSetting）。验证：pytest 3825 passed / 0 failed；全部扫描 0 发现。未推送。
+- `4d124a088e` [C✓全量] feat(kuaizhizao): 单据行价税统一与采购入库含税算价 → `28049fbd99`（连依赖移植：退货下推/其他出库行编辑/XLSX 导出/uni-pull·batch·push 基建/audit hub；`:push` 权限未声明故 push 面板休眠；pytest 3819p/6f 全为基线预存量）
+- `bbb1f86ae9` [基线清理] 修复批C全量验证暴露的基线遗留问题（非上游提交）：追溯闭集补 purchase_inquiry；manifest 测试 UTF-8；document_action_policy None 语义；kingdee_cosmic_paths 补 apply_connector_org_to_payload；新增 scan_route_manifest_alignment.py（AST 解析）并修 kuaiplm:change:create / drawing 权限码 / material-lifecycle-trace 声明 / module_references 漂移；sales_order_change_service 复用 is_pending 消门禁告警；antd6 全量修复（size 枚举/Space orientation/Alert title/Dropdown.Button/destroyOnHidden/addon*/Drawer size）；common.remarks→common.remark 7 处；时区契约 32 项清零（resolve_business_datetime/now_utc/to_api_isoformat + 前端 toApiDateTimeString/formatDateTimeBySiteSetting）。验证：pytest 3825 passed / 0 failed；全部扫描 0 发现。
+- `512bdcfa7c` [回归修复] 非上游提交：销售订单非 update 动作 UnboundLocalError 死行（`f2baa424ac` 残留）删除+service 级回归测试；`s148_share._parse_expires` naive 按站点墙钟 `coerce_business_datetime_to_utc`；销售预测 `review_submitted` 全链路接线（已送审可删后门/待审不可审阻断修复）；uni-table `'middle'`→`'medium'`。验证：pytest 3826 passed / 0 failed。
+- `f33331eca3` [AOCI] 孤儿 `PurchaseReceiptEditModal.tsx` Entry 移除+73 条创作落盘（余约 635 候选待后续批次）。
 - `31b1179a8e`/`ebdc66ac4d`/`ad91f99f5e` [C✓] 失焦反算簇三笔 → `32d5cb0b5b`
 - `c346cff13b` [C✓] 采购入库价税与订单统一及采购链修复（含 `d5f1a83261` 后端子集）→ `d8b15c8e78`
 - `6abba1dbd5` [C✓子集] 服务采购全流程与申请转单占用 → `74aef8fb30`
