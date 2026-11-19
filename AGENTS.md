@@ -54,7 +54,9 @@
 2. **落地顺序**：优先 `git cherry-pick`；冲突按「保留本地功能 + 并入上游增量」解决。不能直接 cherry-pick（架构偏离、pro 侧缺口）时，分析上游实现思路后在本地复刻——参照其契约（迁移 DDL、前端调用、测试）实现，并保留本地硬化（租户隔离、事务语义、权限门控）。
 3. **迁移号避让**：上游占用段重映射到本地连续段，不改已入库 aerich 记录的文件名。
 4. **复杂情况与多路径交用户决策**（同「多选项必须交用户决策」）：一次给齐场景、选项、推荐与理由，由用户选定后继续。
-5. **验证与台账**：每批摘取后跑 `uv run pytest` + `npm run build`，dist 单独 `chore: build-web sync` 提交；台账（水位提交、取/适配/跳过映射）随每批同步更新 `kuaigeyun-mes/docs/上游同步台账.md`。
+5. **验证与台账**：每批摘取后做相关域验证（语法+相关 pytest+触及文件 tsc+契约扫描）；全量 `pytest`/`tsc`/`npm run build` 降为批收尾里程碑一次，dist 单独 `chore: build-web sync` 提交；台账（水位提交、取/适配/跳过映射）随每批同步更新 `kuaigeyun-mes/docs/上游同步台账.md`。
+6. **文件级台账**：`kuaigeyun-mes/riveredge-backend/scripts/sync_upstream_audit.py` 维护 `docs/上游同步-文件级台账.tsv`（文件→上游 blob sha→判定）。每轮开头跑 `audit --from <上轮tip> --to gitee/develop`，输出 NEW/REEVAL/DELETED/SKIP 四分类——SKIP（sha 未变）直接沿用既有判定不复评；每文件评完用 `record --to <tip> --verdict <v> <path>` 落账。
+7. **只读预审可并行**：文件级超集/适配判定是纯只读比对，可派只读子代理按文件包并行预审（要求逐文件给出 verdict+证据行号），主线程只做落地与写操作。
 
 ## 文档
 
