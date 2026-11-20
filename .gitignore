@@ -35,6 +35,11 @@ out/
 # Baseline snapshot clone of kuaigeyun-mes (reference only).
 /kuaigeyun-mes-baseline/
 
+# Upstream split reference checkouts (read-only; never commit into the parent or kuaigeyun-mes).
+# Local fork keeps its own .aoci and builds riveredge-frontend/dist itself.
+/kuaigeyun-aoci/
+/kuaigeyun-dist/
+
 # RuoYi reference checkouts (read-only; never commit upstream source into the parent).
 /RuoYi-Vue/
 /RuoYi-Vue-springboot2/
@@ -52,3 +57,7 @@ out/
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# Session-scoped sync scratch + baseline head snapshot (reference only).
+/.sync_tmp/
+/mes-head-baseline/

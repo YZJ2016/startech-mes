@@ -43,6 +43,15 @@
 
 `kuaigeyun-mes/` 跟踪开源上游（Gitee/GitHub）。同步上游变更时适用本节约束；已评水位与取/跳过台账见 `kuaigeyun-mes/docs/上游同步台账.md`。
 
+源码权威仍是 `gitee` = `git@gitee.com:kuaigeyun/kuaigeyun.git` 的 `develop`。上游另把治理索引和前端构建拆成两个仓。外层工作区的只读克隆是评估时的重要参考，不是第二套源码，也不进入 `kuaigeyun-mes` 的 remote：
+
+| 本地路径 | 上游 | 参考什么 |
+| --- | --- | --- |
+| `kuaigeyun-aoci/` | `git@gitee.com:kuaigeyun/kuaigeyun-aoci.git` | 上游 AOCI 治理索引与正式资产。对照上游认知意图。本地 fork 继续用自己的 `.aoci` |
+| `kuaigeyun-dist/` | `git@gitee.com:kuaigeyun/kuaigeyun-dist.git` | 上游已发布前端构建。对照上游界面与产物。本地继续自行构建，`riveredge-frontend/dist/` 不入库 |
+
+两仓默认分支 `develop`，`origin` 只 fetch（push 为 `DISABLED`）。更新：`git -C kuaigeyun-aoci pull --ff-only`，`git -C kuaigeyun-dist pull --ff-only`。
+
 1. **先评估，后动手**。逐个上游提交评估对本地功能的影响；**任何导致现有功能不可用、被删除或行为劣化的变更不得直接落地**。评估结果按分区直观呈现：
 
    | 分区 | 含义 | 处置 |
@@ -57,6 +66,7 @@
 5. **验证与台账**：每批摘取后做相关域验证（语法+相关 pytest+触及文件 tsc+契约扫描）；全量 `pytest`/`tsc`/`npm run build` 降为批收尾里程碑一次，dist 单独 `chore: build-web sync` 提交；台账（水位提交、取/适配/跳过映射）随每批同步更新 `kuaigeyun-mes/docs/上游同步台账.md`。
 6. **文件级台账**：`kuaigeyun-mes/riveredge-backend/scripts/sync_upstream_audit.py` 维护 `docs/上游同步-文件级台账.tsv`（文件→上游 blob sha→判定）。每轮开头跑 `audit --from <上轮tip> --to gitee/develop`，输出 NEW/REEVAL/DELETED/SKIP 四分类——SKIP（sha 未变）直接沿用既有判定不复评；每文件评完用 `record --to <tip> --verdict <v> <path>` 落账。
 7. **只读预审可并行**：文件级超集/适配判定是纯只读比对，可派只读子代理按文件包并行预审（要求逐文件给出 verdict+证据行号），主线程只做落地与写操作。
+8. **对照仓要查**：评估治理意图、主仓已不再跟踪的 `.aoci`，或上游已发布前端行为时，先读上表 `kuaigeyun-aoci/`、`kuaigeyun-dist/`，再判定摘取或复刻。禁止把它们 cherry-pick 或合并进 `kuaigeyun-mes`，禁止覆盖本地 `.aoci`，禁止用上游 dist 代替本机构建或部署。
 
 ## 文档
 
